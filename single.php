@@ -14,7 +14,7 @@
 <?php endwhile; ?>
 <?php else: ?>
 				<article>
-					<h1>No Posts</h1>
+					<h2>No Posts</h2>
 				</article>
 <?php endif; ?>
 			</section>

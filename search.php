@@ -2,11 +2,11 @@
 
 		<main class="row">
 			<section class="col-sm-9">
-				<h1><?php
+				<h2><?php
 					$n = $wp_query->found_posts;
 					$s = ($n == 1) ? '' : 's';
 					echo $n . ' search result' . $s . ' for "' . get_search_query() . '"';
-				?></h1>
+				?></h2>
 <?php get_template_part('loop'); ?>
 <?php get_template_part('pagination'); ?>
 

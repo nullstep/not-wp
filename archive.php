@@ -2,7 +2,7 @@
 
 		<main class="row">
 			<section class="col-sm-9">
-				<h1>Archives</h1>
+				<h2>Archives</h2>
 <?php get_template_part('loop'); ?>
 <?php get_template_part('pagination'); ?>
 

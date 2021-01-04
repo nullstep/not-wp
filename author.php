@@ -3,7 +3,7 @@
 		<main class="row">
 			<section class="col-sm-9">
 <?php if (have_posts()): the_post(); ?>
-				<h1>Author Archives for <?php echo get_the_author(); ?></h1>
+				<h2>Author Archives for <?php echo get_the_author(); ?></h2>
 <?php if (get_the_author_meta('description')) : ?>
 <?php echo get_avatar(get_the_author_meta('user_email')); ?>
 				<h2>About <?php echo get_the_author(); ?></h2>

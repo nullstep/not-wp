@@ -2,7 +2,7 @@
 
 		<main class="row">
 			<section class="col-sm-9">
-				<h1>Tag Archive: <?php echo single_tag_title('', false); ?></h1>
+				<h2>Tag Archive: <?php echo single_tag_title('', false); ?></h2>
 <?php get_template_part('loop'); ?>
 <?php get_template_part('pagination'); ?>
 
