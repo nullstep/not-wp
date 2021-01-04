@@ -1,5 +1,7 @@
 <?php
 
+require_once($_SERVER['DOCUMENT_ROOT'].'/wp-load.php');
+
 $mimes = [
 	'hqx' => 'application/mac-binhex40',
 	'cpt' => 'application/mac-compactpro',
@@ -164,7 +166,11 @@ if (isset($_GET['file'])) {
 	if ($_GET['file'] != '') {
 		$req = $_GET['file'];
 		$x = explode('.', $req);
-		$extension = end($x);
+		$name = $x[0];
+		$extension = end($x);		
+		$post = get_page_by_title($name, 'OBJECT', 'attachment');
+		$count = get_post_meta($post->ID, 'file_downloads', true);
+		update_post_meta($post->ID, 'file_downloads', ($count != '') ? (int)$count + 1 : 1);
 		if (!isset($mimes[$extension])) {
 			$mime = 'application/octet-stream';
 		}
