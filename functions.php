@@ -127,7 +127,8 @@ class _themeMenu {
 			'manage_options',
 			$this->slug,
 			[$this, 'render_admin'],
-			'dashicons-smiley'
+			'dashicons-smiley',
+			2
 		);
 	}
 
