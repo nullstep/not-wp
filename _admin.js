@@ -2,11 +2,11 @@
 
 jQuery(function($) {
 	const fields = [
-		'site_favicon',
-		'site_logo',
-		'site_header'
+		'favicon',
+		'logo',
+		'header'
 	];
-	var _theme = nozzle;
+	var _theme = not_wp;
 	$.ajax({
 		method: 'GET',
 		url: _theme.api.url,
@@ -70,7 +70,7 @@ jQuery(function($) {
 		});
 		mediaUploader.on('select', function() {
 			var attachment = mediaUploader.state().get('selection').first().toJSON();
-			$(id).val(attachment.url);
+			$(id).val(attachment.url.split('/').pop());
 		});
 		mediaUploader.open();
 	});

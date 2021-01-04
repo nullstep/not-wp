@@ -3,6 +3,7 @@
 		<main class="row">
 			<section class="col-sm-9">
 				<h1><?php single_cat_title(); ?></h1>
+				<?php the_archive_description('<div class="description">', '</div>'); ?>
 <?php get_template_part('loop'); ?>
 <?php get_template_part('pagination'); ?>
 

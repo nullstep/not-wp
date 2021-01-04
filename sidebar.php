@@ -6,3 +6,7 @@
 
 					</div>
 				</aside>
+				<aside>
+					<h2 class="mt-3 mb-0">Latest Posts</h2>
+					<?php latest_posts(5); ?>
+				</aside>

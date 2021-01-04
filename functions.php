@@ -10,20 +10,20 @@ defined('ABSPATH') or die('nope');
 
 // theme api
 
-define('_THEME', 'not-wp');
+define('_THEME', 'not_wp');
 
 define('_ARGS', [
-	'a_file' => [
+	'favicon' => [
 		'type' => 'string',
 		'default' => ''
 	],
-	'a_string' => [
+	'logo' => [
 		'type' => 'string',
-		'default' => 'string'
+		'default' => ''
 	],
-	'a_number' => [
-		'type' => 'integer',
-		'default' => 1984
+	'header' => [
+		'type' => 'string',
+		'default' => ''
 	]
 ]);
 
@@ -159,26 +159,28 @@ class _themeMenu {
 		$this->enqueue_assets();
 ?>
 		<h2>Theme Settings</h2>
-		<p style="max-width:500px">set some values.</p>
+		<p style="max-width:500px">Set your theme images...</p>
 		<form id="_theme-form" method="post">
 			<div>
-				<label for="a_file">
+				<label for="favicon">
 					Favicon:
 				</label>
-				<input id="a_file" type="text" name="a_file">
-				<input data-id="a_file" type="button" class="button-primary choose-file-button" value="Choose File...">
+				<input id="favicon" type="text" name="favicon">
+				<input data-id="favicon" type="button" class="button-primary choose-file-button" value="Select...">
 			</div>
 			<div>
-				<label for="a_string">
-					Favicon:
-				</label>
-				<input id="a_string" type="text" name="a_string">
-			</div>
-			<div>
-				<label for="a_number">
+				<label for="logo">
 					Logo:
 				</label>
-				<input id="a_number" type="text" name="a_number">
+				<input id="logo" type="text" name="logo">
+				<input data-id="logo" type="button" class="button-primary choose-file-button" value="Select...">
+			</div>
+			<div>
+				<label for="header">
+					Header Image:
+				</label>
+				<input id="header" type="text" name="header">
+				<input data-id="header" type="button" class="button-primary choose-file-button" value="Select...">
 			</div>
 			<div>
 				<?php submit_button(); ?>
@@ -250,6 +252,53 @@ function pages_custom_column_views($column_name, $id) {
 	}
 }
 
+// media downloads field
+
+function media_downloads($form_fields, $post) {
+	$form_fields['file_downloads'] = array(
+		'label' => 'Downloads',
+		'input' => 'text',
+		'value' => get_post_meta($post->ID, 'file_downloads', true),
+		'helps' => ''
+	);
+	return $form_fields;
+}
+ 
+function media_downloads_save($post, $attachment) {
+	if (isset($attachment['file_downloads'])) {
+		update_post_meta($post->ID, 'file_downloads', $attachment['file_downloads']);
+	}
+	return $post;
+}
+
+// latest posts
+
+function latest_posts($count) {
+	wp_reset_postdata();
+	$none = true;
+	$post_id = get_queried_object_id();
+	$query = new WP_Query('posts_per_page=' . $count);
+	echo '<ul class="latest-posts">';
+	while ($query -> have_posts()) : $query -> the_post();
+		if (get_the_ID() != $post_id) {
+			echo '<li><a href="';
+			the_permalink();
+			echo '">';
+			the_title();
+			echo '</a><br><span>';
+			the_time(get_option('date_format'));
+			echo ' - ';
+			the_time();
+			echo '</span></li>';
+			$none = false;
+		}
+	endwhile;
+	if ($none) {
+		echo '<li>No Other Posts :(</li>';
+	}
+	echo '</ul>';
+}
+
 // fix content urls/classes etc
 
 function fix_content($content) {
@@ -261,10 +310,12 @@ function fix_content($content) {
 		$img->setAttribute('src', '/uploads/' . $file);
 		$set = str_replace($path, '/uploads/', $img->getAttribute('srcset'));
 		$img->setAttribute('srcset', $set);
-		//$img->removeAttribute('class');
 	}
 	foreach ($dom->getElementsByTagName('figure') as $fig) {
 		$fig->removeAttribute('class');
+	}
+	foreach ($dom->getElementsByTagName('pre') as $pre) {
+		$pre->removeAttribute('class');
 	}
 	return "\t\t\t\t\t" . str_replace("\n", '', $dom->saveHTML());
 }
@@ -370,10 +421,75 @@ function inc_shortcode($atts = [], $content = null, $tag = '') {
 	}
 }
 
+function video_shortcode($atts = [], $content = null, $tag = '') {
+	return '<div class="video"><iframe src="' . $content . '" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>';
+}
+
+// no category base
+
+function no_category_base_refresh_rules() {
+	global $wp_rewrite;
+	$wp_rewrite->flush_rules();
+}
+
+function no_category_base_permastruct() {
+	global $wp_rewrite;
+	global $wp_version;
+	$wp_rewrite->extra_permastructs['category']['struct'] = '%category%';
+}
+
+function no_category_base_rewrite_rules($category_rewrite) {
+	global $wp_rewrite;
+	$category_rewrite = [];
+	$categories = get_categories([
+		'hide_empty' => false
+	]);
+
+	foreach($categories as $category) {
+		$category_nicename = $category->slug;
+
+		if ($category->parent == $category->cat_ID) {
+			$category->parent = 0;
+		}
+		elseif ($category->parent != 0) {
+			$category_nicename = get_category_parents($category->parent, false, '/', true) . $category_nicename;
+		}
+
+		$category_rewrite['('.$category_nicename.')/(?:feed/)?(feed|rdf|rss|rss2|atom)/?$'] = 'index.php?category_name=$matches[1]&feed=$matches[2]';
+		$category_rewrite["({$category_nicename})/{$wp_rewrite->pagination_base}/?([0-9]{1,})/?$"] = 'index.php?category_name=$matches[1]&paged=$matches[2]';
+		$category_rewrite['('.$category_nicename.')/?$'] = 'index.php?category_name=$matches[1]';
+	}
+
+	$old_category_base = get_option('category_base') ? get_option('category_base') : 'category';
+	$old_category_base = trim($old_category_base, '/');
+	$category_rewrite[$old_category_base.'/(.*)$'] = 'index.php?category_redirect=$matches[1]';
+
+	return $category_rewrite;
+}
+
+function no_category_base_query_vars($public_query_vars) {
+	$public_query_vars[] = 'category_redirect';
+	return $public_query_vars;
+}
+
+function no_category_base_request($query_vars) {
+	if (isset($query_vars['category_redirect'])) {
+		$catlink = trailingslashit(get_option('home')) . user_trailingslashit($query_vars['category_redirect'], 'category');
+		status_header(301);
+		header('Location: ' . $catlink);
+		exit();
+	}
+
+	return $query_vars;
+}
+
 // set some wp options
 
 function set_wp_options() {
 	update_option('permalink_structure', '/%postname%/');
+	update_option('category_base', '');
+	update_option('tag_base', '');
+	update_option('posts_per_page', 10);
 	update_option('uploads_use_yearmonth_folders', 0);
 	update_option('ping_sites', '');
 	update_option('use_smilies', 0);
@@ -391,6 +507,10 @@ add_action('admin_init', 'flush_htaccess');
 add_action('wp_enqueue_scripts', 'remove_block_library_css');
 add_action('manage_posts_custom_column', 'posts_custom_column_views', 5, 2);
 add_action('manage_pages_custom_column', 'pages_custom_column_views', 5, 2);
+add_action('created_category', 'no_category_base_refresh_rules');
+add_action('delete_category', 'no_category_base_refresh_rules');
+add_action('edited_category', 'no_category_base_refresh_rules');
+add_action('init', 'no_category_base_permastruct');
 
 remove_action('wp_head', 'feed_links_extra', 3);
 remove_action('wp_head', 'feed_links', 2);
@@ -430,6 +550,11 @@ add_filter('manage_pages_columns', 'pages_column_views');
 add_filter('the_content', 'fix_content', 20);
 add_filter('mod_rewrite_rules', 'output_htaccess');
 add_filter('upload_mimes', 'add_mime_types');
+add_filter('attachment_fields_to_edit', 'media_downloads', 10, 2);
+add_filter('attachment_fields_to_save', 'media_downloads_save', 10, 2);
+add_filter('category_rewrite_rules', 'no_category_base_rewrite_rules');
+add_filter('query_vars', 'no_category_base_query_vars');
+add_filter('request', 'no_category_base_request');
 
 remove_filter('oembed_dataparse', 'wp_filter_oembed_result', 10);
 remove_filter('the_excerpt', 'wpautop');
@@ -437,6 +562,7 @@ remove_filter('the_excerpt', 'wpautop');
 // shortcodes
 
 add_shortcode('inc', 'inc_shortcode');
+add_shortcode('video', 'video_shortcode');
 
 // boot theme
 
