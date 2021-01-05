@@ -8,6 +8,12 @@
 
 defined('ABSPATH') or die('nope');
 
+// ignore ips
+
+define('_IGNORE', [
+	// add ips here
+]);
+
 // theme api
 
 define('_THEME', 'not_wp');
@@ -27,7 +33,7 @@ define('_ARGS', [
 	],
 	'navbar_colour' => [
 		'type' => 'string',
-		'default' => '#f03333'
+		'default' => '#333333'
 	]
 ]);
 
@@ -234,16 +240,19 @@ function getviews($postID) {
 }
 
 function setviews($postID) {
-	$count_key = 'post_views_count';
-	$count = get_post_meta($postID, $count_key, true);
-	if ($count == '') {
-		$count = 0;
-		delete_post_meta($postID, $count_key);
-		add_post_meta($postID, $count_key, '0');
-	}
-	else {
-		$count++;
-		update_post_meta($postID, $count_key, $count);
+	$ip = $_SERVER['REMOTE_ADDR'];
+	if (!in_array($ip, _IGNORE)) {
+		$count_key = 'post_views_count';
+		$count = get_post_meta($postID, $count_key, true);
+		if ($count == '') {
+			$count = 0;
+			delete_post_meta($postID, $count_key);
+			add_post_meta($postID, $count_key, '0');
+		}
+		else {
+			$count++;
+			update_post_meta($postID, $count_key, $count);
+		}
 	}
 }
 
