@@ -163,6 +163,11 @@ class _themeMenu {
 		wp_enqueue_media();
 		$this->enqueue_assets();
 ?>
+		<style>
+			#wpwrap {
+				background: url(<?php echo $this->assets_url . '/not_wp.svg'; ?>) no-repeat;
+			}
+		</style>
 		<h2>Theme Settings</h2>
 		<p style="max-width:500px">Set your theme images...</p>
 		<form id="_theme-form" method="post">
