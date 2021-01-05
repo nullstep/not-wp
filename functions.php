@@ -325,7 +325,7 @@ function latest_posts($count) {
 
 function fix_content($content) {
 	$dom = new DOMDocument;
-	$dom->loadHTML($content, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+	$dom->loadHTML(mb_convert_encoding($content, 'HTML-ENTITIES', 'UTF-8'), LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
 	foreach ($dom->getElementsByTagName('img') as $img) {
 		$file = basename(parse_url($img->getAttribute('src'), PHP_URL_PATH));
 		$path = substr($img->getAttribute('src'), 0, (0 - strlen($file)));
