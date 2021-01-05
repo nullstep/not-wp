@@ -292,9 +292,10 @@ function media_downloads_save($post, $attachment) {
 
 function latest_posts($count) {
 	wp_reset_postdata();
+	$loop = 0;
 	$none = true;
 	$post_id = get_queried_object_id();
-	$query = new WP_Query('posts_per_page=' . $count);
+	$query = new WP_Query('posts_per_page=' . ($count + 1));
 	echo '<ul class="latest-posts">';
 	while ($query -> have_posts()) : $query -> the_post();
 		if (get_the_ID() != $post_id) {
@@ -308,6 +309,10 @@ function latest_posts($count) {
 			the_time();
 			echo '</span></li>';
 			$none = false;
+			$loop++;
+		}
+		if ($loop == 5) {
+			break;
 		}
 	endwhile;
 	if ($none) {
