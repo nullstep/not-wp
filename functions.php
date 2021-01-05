@@ -13,17 +13,21 @@ defined('ABSPATH') or die('nope');
 define('_THEME', 'not_wp');
 
 define('_ARGS', [
-	'favicon' => [
+	'favicon_image' => [
 		'type' => 'string',
 		'default' => ''
 	],
-	'logo' => [
+	'logo_image' => [
 		'type' => 'string',
 		'default' => ''
 	],
-	'header' => [
+	'header_image' => [
 		'type' => 'string',
 		'default' => ''
+	],
+	'navbar_colour' => [
+		'type' => 'string',
+		'default' => '#f03333'
 	]
 ]);
 
@@ -162,26 +166,33 @@ class _themeMenu {
 		<h2>Theme Settings</h2>
 		<p style="max-width:500px">Set your theme images...</p>
 		<form id="_theme-form" method="post">
-			<div>
+			<div class="form-block">
 				<label for="favicon">
-					Favicon:
+					Favicon Image:
 				</label>
-				<input id="favicon" type="text" name="favicon">
-				<input data-id="favicon" type="button" class="button-primary choose-file-button" value="Select...">
+				<input id="favicon_image" type="text" name="favicon_image">
+				<input data-id="favicon_image" type="button" class="button-primary choose-file-button" value="Select...">
 			</div>
-			<div>
-				<label for="logo">
-					Logo:
+			<div class="form-block">
+				<label for="logo_image">
+					Logo Image:
 				</label>
-				<input id="logo" type="text" name="logo">
-				<input data-id="logo" type="button" class="button-primary choose-file-button" value="Select...">
+				<input id="logo_image" type="text" name="logo_image">
+				<input data-id="logo_image" type="button" class="button-primary choose-file-button" value="Select...">
 			</div>
-			<div>
+			<div class="form-block">
 				<label for="header">
 					Header Image:
 				</label>
-				<input id="header" type="text" name="header">
-				<input data-id="header" type="button" class="button-primary choose-file-button" value="Select...">
+				<input id="header_image" type="text" name="header_image">
+				<input data-id="header_image" type="button" class="button-primary choose-file-button" value="Select...">
+			</div>
+			<div class="form-block-ns">
+				<label for="navbar_colour">
+					Navbar Colour:
+				</label>
+				<input id="navbar_colour" type="text" name="navbar_colour">
+				<input data-id="navbar_colour" type="color" class="choose-colour-button" value="#000000">
 			</div>
 			<div>
 				<?php submit_button(); ?>

@@ -1,10 +1,21 @@
 /* theme admin css */
 
-#_theme-form div {
-	margin-top:5px;
+#_theme-form .form-block {
+	margin-top: 5px;
+}
+
+#_theme-form .form-block-ns {
+	margin-top: 1px;
 }
 
 #_theme-form label {
-	display:inline-block;
-	width:90px;
+	display: inline-block;
+	width: 90px;
+}
+
+#_theme-form .choose-colour-button {
+	position: relative;
+	height: 30px;
+	top: 4px;
+	margin: 0;
 }

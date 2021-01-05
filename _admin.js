@@ -2,9 +2,10 @@
 
 jQuery(function($) {
 	const fields = [
-		'favicon',
-		'logo',
-		'header'
+		'favicon_image',
+		'logo_image',
+		'header_image',
+		'navbar_colour'
 	];
 	var _theme = not_wp;
 	$.ajax({
@@ -18,6 +19,9 @@ jQuery(function($) {
 		fields.forEach(function(item, index) {
 			if (r.hasOwnProperty(item)) {
 				$('#' + item).val(r[item]);
+				if (r[item][0] == '#') {
+					$('#' + item).parent().find('[data-id="' + item + '"]').val(r[item]);
+				}
 			}
 		});
 	});
@@ -54,9 +58,9 @@ jQuery(function($) {
 			$('#feedback').html('<p>' + message + '</p>');
 		});
 	});
-	var mediaUploader;
-	$('.choose-file-button').click(function(e) {
-		var id = '#' + $(this).data('id');
+	var mediaUploader, id;
+	$('.choose-file-button').on('click', function(e) {
+		id = '#' + $(this).data('id');
 		e.preventDefault();
 		if (mediaUploader) {
 			mediaUploader.open();
@@ -74,4 +78,10 @@ jQuery(function($) {
 		});
 		mediaUploader.open();
 	});
+	$('.choose-colour-button').on('change', function() {
+		id = '#' + $(this).data('id');
+		$(id).val($(this).val());
+	});
 });
+
+// EOF
