@@ -505,6 +505,12 @@ function no_category_base_request($query_vars) {
 	return $query_vars;
 }
 
+// clean up nav items
+
+function nav_attributes_filter($var) {
+	return is_array($var) ? array_intersect($var, ['current-menu-item', 'nav-item']) : '';
+}
+
 // set some wp options
 
 function set_wp_options() {
@@ -577,6 +583,9 @@ add_filter('attachment_fields_to_save', 'media_downloads_save', 10, 2);
 add_filter('category_rewrite_rules', 'no_category_base_rewrite_rules');
 add_filter('query_vars', 'no_category_base_query_vars');
 add_filter('request', 'no_category_base_request');
+add_filter('nav_menu_css_class', 'nav_attributes_filter', 100, 1);
+add_filter('nav_menu_item_id', 'nav_attributes_filter', 100, 1);
+add_filter('page_css_class', 'nav_attributes_filter', 100, 1);
 
 remove_filter('oembed_dataparse', 'wp_filter_oembed_result', 10);
 remove_filter('the_excerpt', 'wpautop');
