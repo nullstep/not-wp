@@ -4,9 +4,17 @@
  *  URL: nullstep.com
  */
 
-/* no direct access */
+// no direct access
 
 defined('ABSPATH') or die('nope');
+
+// theme name/slug
+
+define('_THEME', 'not_wp');
+
+// theme author
+
+define('_AUTHOR', 'nullstep');
 
 // ignore ips
 
@@ -15,8 +23,6 @@ define('_IGNORE', [
 ]);
 
 // theme api
-
-define('_THEME', 'not_wp');
 
 define('_ARGS', [
 	'favicon_image' => [
@@ -215,6 +221,141 @@ class _themeMenu {
 	}
 }
 
+// theme updater
+
+class _themeUpdater {
+	protected $theme = _THEME;
+	protected $repository = _AUTHOR . '/' . _THEME;
+	protected $domain = 'https://github.com/';
+	protected $raw_domain = 'https://raw.githubusercontent.com/';
+	protected $css_endpoint = '/main/style.css';
+
+// https://github.com/nullstep/not_wp/releases/download/v1.0.1/not_wp.zip
+
+	protected $zip_endpoint = '/releases/download/v';
+	protected $remote_css_uri;
+	protected $remote_zip_uri;
+	protected $remote_version;
+	protected $local_version;
+
+	public function init() {
+		add_filter('auto_update_theme', [
+			$this,
+			'auto_update_theme'
+		], 20, 2);
+		add_filter('upgrader_source_selection', [$this,
+			'upgrader_source_selection'
+		], 10, 4);
+		add_filter('pre_set_site_transient_update_themes', [
+			$this,
+			'pre_set_site_transient_update_themes'
+		]);
+	}
+
+	public function auto_update_theme($update, $item) {
+		return $this->theme === $item->theme;
+	}
+
+	public function upgrader_source_selection($source, $remote_source, $upgrader, $hook_extra) {
+		global $wp_filesystem;
+
+		$update = [
+			'update-selected',
+			'update-selected-themes',
+			'upgrade-theme'
+		];
+
+		if (!isset($_GET['action']) || !in_array($_GET['action'], $update, true)) {
+			return $source;
+		}
+
+		if (!isset($source, $remote_source)) {
+			return $source;
+		}
+
+		if (false === stristr(basename($source), $this->theme)) {
+			return $source;
+		}
+
+		$basename = basename($source);
+		$upgrader->skin->feedback(esc_html_e('Renaming theme directory.', 'bootstrap'));
+		$corrected_source = str_replace($basename, $this->theme, $source);
+
+		if ($wp_filesystem->move($source, $corrected_source, true)) {
+			$upgrader->skin->feedback(esc_html_e('Rename successful.', 'bootstrap'));
+			return $corrected_source;
+		}
+
+		return new WP_Error();
+	}
+
+	public function pre_set_site_transient_update_themes($transient) {
+		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
+		$this->local_version = (wp_get_theme($this->theme))->get('Version');
+
+		echo '<!--' ."\n";
+		var_dump($this->has_update());
+		echo "\n" . '-->';
+
+		if ($this->has_update()) {
+			$response = [
+				'theme' => $this->theme,
+				'new_version' => $this->remote_version,
+				'url' => $this->construct_repository_uri(),
+				'package' => $this->construct_remote_zip_uri(),
+				'branch' => 'master'
+			];
+			$transient->response[$this->theme] = $response;
+		}
+
+		return $transient;
+	}
+
+	protected function construct_remote_stylesheet_uri() {
+		return $this->remote_css_uri = $this->raw_domain . $this->repository . $this->css_endpoint;
+	}
+
+	protected function construct_remote_zip_uri() {
+		die($this->domain . $this->repository . $this->zip_endpoint . $this->remote_version . '/' . $this->theme . '.zip');
+		return $this->remote_zip_uri = $this->domain . $this->repository . $this->zip_endpoint . $this->remote_version . '/' . $this->theme . '.zip';
+	}
+
+	protected function construct_repository_uri() {
+		return $this->repository_uri = $this->domain . trailingslashit($this->repository);
+	}
+
+	protected function get_remote_version() {
+		$this->remote_stylesheet_uri = $this->construct_remote_stylesheet_uri();
+		$response = $this->remote_get($this->remote_stylesheet_uri);
+		$response = str_replace("\r", "\n", wp_remote_retrieve_body($response));
+		$headers = [
+			'Version' => 'Version'
+		];
+
+		foreach ($headers as $field => $regex) {
+			if (preg_match( '/^[ \t\/*#@]*' . preg_quote($regex, '/') . ':(.*)$/mi', $response, $match) && $match[1]) {
+				$headers[$field] = _cleanup_header_comment($match[1]);
+			}
+			else {
+				$headers[$field] = '';
+			}
+		}
+
+		return $this->remote_version = ('' === $headers['Version']) ? '' : $headers['Version'];
+	}
+
+	protected function has_update() {
+		if (!$this->remote_version) {
+			$this->remote_version = $this->get_remote_version();
+		}
+		return version_compare($this->remote_version, $this->local_version, '>');
+	}
+
+	protected function remote_get($url, $args = []) {
+		return wp_remote_get($url, $args);
+	}
+}
+
 // get setting
 
 function getvalue($key, $echo = true) {
@@ -363,10 +504,6 @@ function remove_recent_comments_style() {
 		$wp_widget_factory->widgets['WP_Widget_Recent_Comments'],
 		'recent_comments_style'
 	));
-}
-
-function remove_admin_bar() {
-	return false;
 }
 
 function remove_block_library_css() {
@@ -534,8 +671,13 @@ function set_wp_options() {
 	update_option('show_avatars', 0);
 }
 
+// theme updater
+
+$updater = new _themeUpdater();
+
 // actions
 
+add_action('init', [$updater, 'init']);
 add_action('init', 'set_wp_options');
 add_action('widgets_init', 'remove_recent_comments_style');
 add_action('init', 'pagination');
@@ -579,7 +721,7 @@ remove_action('wp_head', 'wp_resource_hints', 2);
 add_filter('widget_text', 'shortcode_unautop');
 add_filter('the_category', 'remove_category_rel_from_category_list');
 add_filter('the_excerpt', 'shortcode_unautop');
-add_filter('show_admin_bar', 'remove_admin_bar');
+add_filter('show_admin_bar', '__return_false');
 add_filter('post_thumbnail_html', 'remove_thumbnail_dimensions', 10);
 add_filter('image_send_to_editor', 'remove_thumbnail_dimensions', 10);
 add_filter('manage_posts_columns', 'posts_column_views');
