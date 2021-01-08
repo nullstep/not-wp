@@ -524,7 +524,7 @@ function fix_content($content) {
 	for ($els = $xpath->query('//comment()'), $i = $els->length - 1; $i >= 0; $i--) {
 		$els->item($i)->parentNode->removeChild($els->item($i));
 	}
-	return "\t\t\t\t\t" . str_replace("\n", '', $dom->saveHTML());
+	return "\t\t\t\t\t\t" . str_replace("\n", '', $dom->saveHTML());
 }
 
 // remove crap
@@ -649,7 +649,7 @@ function children_shortcode() {
 				$page_title = $child_page->post_title;
 				$page_content = $child_page->post_content;
 				$page_col_class = get_post_meta($page_id, 'column_class', true);
-				?><div class="<?php echo $page_col_class; ?>"><h3><?php echo $page_title; ?></h3><p><?php echo $page_content; ?></p></div><?php
+				?><div class="<?php echo $page_col_class; ?>"><h3><?php echo $page_title; ?></h3><p><?php echo do_shortcode($page_content); ?></p></div><?php
 			}
 			echo '</div>';
 		}
