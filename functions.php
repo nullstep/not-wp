@@ -293,10 +293,6 @@ class _themeUpdater {
 		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 		$this->local_version = (wp_get_theme($this->theme))->get('Version');
 
-		echo '<!--' ."\n";
-		var_dump($this->has_update());
-		echo "\n" . '-->';
-
 		if ($this->has_update()) {
 			$response = [
 				'theme' => $this->theme,
@@ -316,7 +312,6 @@ class _themeUpdater {
 	}
 
 	protected function construct_remote_zip_uri() {
-		die($this->domain . $this->repository . $this->zip_endpoint . $this->remote_version . '/' . $this->theme . '.zip');
 		return $this->remote_zip_uri = $this->domain . $this->repository . $this->zip_endpoint . $this->remote_version . '/' . $this->theme . '.zip';
 	}
 
