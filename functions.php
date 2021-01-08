@@ -638,7 +638,7 @@ function children_shortcode() {
 		$current_page_id = get_the_ID();
 		$child_pages = get_pages([ 
 			'child_of' => $current_page_id,
-			'sort_column' => 'order',
+			'sort_column' => 'menu_order',
 			'sort_order' => 'ASC'
 		]);
 		if ($child_pages) {
