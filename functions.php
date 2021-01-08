@@ -633,26 +633,28 @@ function video_shortcode($atts = [], $content = null, $tag = '') {
 // show child pages shortcode
 
 function children_shortcode() {
-    ob_start();
-    if (is_page()) {
-        $current_page_id = get_the_ID();
-        $child_pages = get_pages([ 
-            'child_of' => $current_page_id,  
-        ]);
-        if ($child_pages) {
-            echo '<div class="row">';
-            foreach ($child_pages as $child_page) {
-                $page_id = $child_page->ID;
-                $page_link = get_permalink($page_id);
-                $page_title = $child_page->post_title;
-		        $page_content = $child_page->post_content;
-		        $page_col_class = get_post_meta($page_id, 'column_class', true);
+	ob_start();
+	if (is_page()) {
+		$current_page_id = get_the_ID();
+		$child_pages = get_pages([ 
+			'child_of' => $current_page_id,
+			'sort_column' => 'order',
+			'sort_order' => 'ASC'
+		]);
+		if ($child_pages) {
+			echo '<div class="row">';
+			foreach ($child_pages as $child_page) {
+				$page_id = $child_page->ID;
+				$page_link = get_permalink($page_id);
+				$page_title = $child_page->post_title;
+				$page_content = $child_page->post_content;
+				$page_col_class = get_post_meta($page_id, 'column_class', true);
 				?><div class="<?php echo $page_col_class; ?>"><h3><?php echo $page_title; ?></h3><p><?php echo $page_content; ?></p></div><?php
-            }
-            echo '</div>';
-        }
-    }
-    return ob_get_clean();
+			}
+			echo '</div>';
+		}
+	}
+	return ob_get_clean();
 }
 
 // no category base
@@ -675,7 +677,7 @@ function no_category_base_rewrite_rules($category_rewrite) {
 		'hide_empty' => false
 	]);
 
-	foreach($categories as $category) {
+	foreach ($categories as $category) {
 		$category_nicename = $category->slug;
 
 		if ($category->parent == $category->cat_ID) {
