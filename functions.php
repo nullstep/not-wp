@@ -229,9 +229,6 @@ class _themeUpdater {
 	protected $domain = 'https://github.com/';
 	protected $raw_domain = 'https://raw.githubusercontent.com/';
 	protected $css_endpoint = '/main/style.css';
-
-// https://github.com/nullstep/not_wp/releases/download/v1.0.1/not_wp.zip
-
 	protected $zip_endpoint = '/releases/download/v';
 	protected $remote_css_uri;
 	protected $remote_zip_uri;
@@ -668,11 +665,11 @@ function set_wp_options() {
 
 // theme updater
 
-$updater = new _themeUpdater();
+//$updater = new _themeUpdater();
 
 // actions
 
-add_action('init', [$updater, 'init']);
+//add_action('init', [$updater, 'init']);
 add_action('init', 'set_wp_options');
 add_action('widgets_init', 'remove_recent_comments_style');
 add_action('init', 'pagination');
