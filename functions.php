@@ -414,12 +414,12 @@ function pages_custom_column_views($column_name, $id) {
 // media downloads field
 
 function media_downloads($form_fields, $post) {
-	$form_fields['file_downloads'] = array(
+	$form_fields['file_downloads'] = [
 		'label' => 'Downloads',
 		'input' => 'text',
 		'value' => get_post_meta($post->ID, 'file_downloads', true),
 		'helps' => ''
-	);
+	];
 	return $form_fields;
 }
  
@@ -463,10 +463,49 @@ function latest_posts($count) {
 	echo '</ul>';
 }
 
+// page column class metadata
+
+function add_post_metadata() {
+    $screen = 'page';
+    add_meta_box('bla-bla-bla', 'Column Class', 'add_post_metadata_callback', $screen, 'side', 'default', null);
+}
+
+function add_post_metadata_callback($post) {
+    wp_nonce_field('column_class_save_data', 'column_class_nonce');
+    $value = get_post_meta($post->ID, 'column_class', true);
+    echo '<input class="components-text-control__input" style="margin-top:8px" type="text" name="column_class" value="' . esc_attr($value) . '" placeholder="Enter Column Class...">';
+}
+ 
+function save_post_metadata($post_id) {
+	if (!isset($_POST['column_class_nonce'])) {
+		return;
+	}
+	if (!wp_verify_nonce($_POST['column_class_nonce'], 'column_class_save_data')) {
+		return;
+	}
+	if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+		return;
+	}
+	if (isset($_POST['post_type']) && 'page' == $_POST['post_type']) {
+		if (!current_user_can('edit_page', $post_id)) {
+			return;
+		}
+	}
+	else {
+		if (!current_user_can('edit_post', $post_id)) {
+			return;
+		}
+	}
+
+    $data = sanitize_text_field($_POST['column_class']);
+    update_post_meta($post_id, 'column_class', $data);
+}
+
 // fix content urls/classes etc
 
 function fix_content($content) {
 	$dom = new DOMDocument;
+	$dom->strictErrorChecking = false;
 	$dom->loadHTML(mb_convert_encoding($content, 'HTML-ENTITIES', 'UTF-8'), LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
 	foreach ($dom->getElementsByTagName('img') as $img) {
 		$file = basename(parse_url($img->getAttribute('src'), PHP_URL_PATH));
@@ -480,6 +519,10 @@ function fix_content($content) {
 	}
 	foreach ($dom->getElementsByTagName('pre') as $pre) {
 		$pre->removeAttribute('class');
+	}
+	$xpath = new DOMXPath($dom);
+	for ($els = $xpath->query('//comment()'), $i = $els->length - 1; $i >= 0; $i--) {
+		$els->item($i)->parentNode->removeChild($els->item($i));
 	}
 	return "\t\t\t\t\t" . str_replace("\n", '', $dom->saveHTML());
 }
@@ -568,7 +611,7 @@ register_nav_menus([
 	'primary' => 'Primary Menu'
 ]);
 
-// shortcodes
+// include file shortcode
 
 function inc_shortcode($atts = [], $content = null, $tag = '') {
 	if ($content) {
@@ -581,8 +624,35 @@ function inc_shortcode($atts = [], $content = null, $tag = '') {
 	}
 }
 
+// responsive video shortcode
+
 function video_shortcode($atts = [], $content = null, $tag = '') {
 	return '<div class="video"><iframe src="' . $content . '" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>';
+}
+
+// show child pages shortcode
+
+function children_shortcode() {
+    ob_start();
+    if (is_page()) {
+        $current_page_id = get_the_ID();
+        $child_pages = get_pages([ 
+            'child_of' => $current_page_id,  
+        ]);
+        if ($child_pages) {
+            echo '<div class="row">';
+            foreach ($child_pages as $child_page) {
+                $page_id = $child_page->ID;
+                $page_link = get_permalink($page_id);
+                $page_title = $child_page->post_title;
+		        $page_content = $child_page->post_content;
+		        $page_col_class = get_post_meta($page_id, 'column_class', true);
+				?><div class="<?php echo $page_col_class; ?>"><h3><?php echo $page_title; ?></h3><p><?php echo $page_content; ?></p></div><?php
+            }
+            echo '</div>';
+        }
+    }
+    return ob_get_clean();
 }
 
 // no category base
@@ -682,6 +752,8 @@ add_action('created_category', 'no_category_base_refresh_rules');
 add_action('delete_category', 'no_category_base_refresh_rules');
 add_action('edited_category', 'no_category_base_refresh_rules');
 add_action('init', 'no_category_base_permastruct');
+add_action('add_meta_boxes', 'add_post_metadata');
+add_action('save_post', 'save_post_metadata');
 
 remove_action('wp_head', 'feed_links_extra', 3);
 remove_action('wp_head', 'feed_links', 2);
@@ -737,6 +809,7 @@ remove_filter('the_excerpt', 'wpautop');
 
 add_shortcode('inc', 'inc_shortcode');
 add_shortcode('video', 'video_shortcode');
+add_shortcode('children', 'children_shortcode');
 
 // boot theme
 
