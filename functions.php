@@ -665,11 +665,11 @@ function set_wp_options() {
 
 // theme updater
 
-//$updater = new _themeUpdater();
+$updater = new _themeUpdater();
 
 // actions
 
-//add_action('init', [$updater, 'init']);
+add_action('init', [$updater, 'init']);
 add_action('init', 'set_wp_options');
 add_action('widgets_init', 'remove_recent_comments_style');
 add_action('init', 'pagination');
