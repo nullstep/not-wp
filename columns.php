@@ -1,4 +1,4 @@
-<?php /* Template Name: Full Width template */ ?>
+<?php /* Template Name: Sidebar template */ ?>
 <?php setviews(get_the_ID()); ?>
 <?php get_header(); ?>
 
