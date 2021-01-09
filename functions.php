@@ -25,6 +25,10 @@ define('_IGNORE', [
 // theme api
 
 define('_ARGS', [
+	'container_class' => [
+		'type' => 'string',
+		'default' => 'container'
+	],
 	'favicon_image' => [
 		'type' => 'string',
 		'default' => ''
@@ -40,19 +44,23 @@ define('_ARGS', [
 	'navbar_colour' => [
 		'type' => 'string',
 		'default' => '#333333'
+	],
+	'footer_colour' => [
+		'type' => 'string',
+		'default' => '#333333'
 	]
 ]);
 
 class _themeAPI {
 	public function add_routes() {
-		register_rest_route(_THEME . '-api/v1', '/settings', [
+		register_rest_route(_THEME . '-theme-api/v1', '/settings', [
 				'methods' => 'POST',
 				'callback' => [$this, 'update_settings'],
 				'args' => _themeSettings::args(),
 				'permission_callback' => [$this, 'permissions']
 			]
 		);
-		register_rest_route(_THEME . '-api/v1', '/settings', [
+		register_rest_route(_THEME . '-theme-api/v1', '/settings', [
 				'methods' => 'GET',
 				'callback' => [$this, 'get_settings'],
 				'args' => [],
@@ -80,7 +88,7 @@ class _themeAPI {
 }
 
 class _themeSettings {
-	protected static $option_key = _THEME . '-settings';
+	protected static $option_key = _THEME . '-theme-settings';
 
 	public static function args() {
 		$args = _ARGS;
@@ -127,7 +135,7 @@ class _themeSettings {
 }
 
 class _themeMenu {
-	protected $slug = _THEME . '-menu';
+	protected $slug = _THEME . '-theme-menu';
 	protected $assets_url;
 
 	public function __construct($assets_url) {
@@ -157,7 +165,7 @@ class _themeMenu {
 				'error' => 'Error'
 			],
 			'api' => [
-				'url' => esc_url_raw(rest_url(_THEME . '-api/v1/settings')),
+				'url' => esc_url_raw(rest_url(_THEME . '-theme-api/v1/settings')),
 				'nonce' => wp_create_nonce('wp_rest')
 			]
 		]);
@@ -180,11 +188,20 @@ class _themeMenu {
 				background: url(<?php echo $this->assets_url . '/not_wp.svg'; ?>) no-repeat;
 			}
 		</style>
-		<h2>Theme Settings</h2>
-		<p style="max-width:500px">Set your theme images...</p>
+		<h2>not_wp</h2>
+		<p style="max-width:500px">Configure your settings...</p>
 		<form id="_theme-form" method="post">
 			<div class="form-block">
-				<label for="favicon">
+				<label for="container_class">
+					Container Width:
+				</label>
+				<select id="container_class" name="container_class">
+					<option value="container-fluid">Full Screen</option>
+					<option value="container">Boxed</option>
+				</select>					
+			</div>
+			<div class="form-block">
+				<label for="favicon_image">
 					Favicon Image:
 				</label>
 				<input id="favicon_image" type="text" name="favicon_image">
@@ -210,6 +227,13 @@ class _themeMenu {
 				</label>
 				<input id="navbar_colour" type="text" name="navbar_colour">
 				<input data-id="navbar_colour" type="color" class="choose-colour-button" value="#000000">
+			</div>
+			<div class="form-block-ns">
+				<label for="footer_colour">
+					Footer Colour:
+				</label>
+				<input id="footer_colour" type="text" name="footer_colour">
+				<input data-id="footer_colour" type="color" class="choose-colour-button" value="#000000">
 			</div>
 			<div>
 				<?php submit_button(); ?>

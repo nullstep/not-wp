@@ -1,7 +1,7 @@
 		</div>
 	</div>
 	<div id="footer-area">
-		<div class="container">
+		<div class="<?php getvalue('container_class'); ?>">
 			<footer class="row">
 				<section class="col-sm-12">
 					<p class="py-5">&copy; <?php echo date('Y'); ?></p>

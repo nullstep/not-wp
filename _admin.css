@@ -10,7 +10,11 @@
 
 #_theme-form label {
 	display: inline-block;
-	width: 90px;
+	width: 100px;
+}
+
+#_theme-form select {
+	width: 168px;
 }
 
 #_theme-form .choose-colour-button {

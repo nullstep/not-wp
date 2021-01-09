@@ -2,10 +2,12 @@
 
 jQuery(function($) {
 	const fields = [
+		'container_class',
 		'favicon_image',
 		'logo_image',
 		'header_image',
-		'navbar_colour'
+		'navbar_colour',
+		'footer_colour'
 	];
 	var _theme = not_wp;
 	$.ajax({
