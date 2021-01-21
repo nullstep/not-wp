@@ -74,6 +74,12 @@ jQuery(function($) {
 				text: 'Choose File'
 			}, multiple: false
 		});
+		wp.media.frame.on('open', function() {
+			if (wp.media.frame.content.get() !== null) {          
+				wp.media.frame.content.get().collection._requery(true);
+				wp.media.frame.content.get().options.selection.reset();
+			}
+		}, this);
 		mediaUploader.on('select', function() {
 			var attachment = mediaUploader.state().get('selection').first().toJSON();
 			$(id).val(attachment.url.split('/').pop());
