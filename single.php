@@ -18,9 +18,5 @@
 				</article>
 <?php endif; ?>
 			</section>
-			<section class="col-sm-3">
-<?php get_sidebar(); ?>
-
-			</section>
 		</main>
 <?php get_footer(); ?>
