@@ -37,17 +37,33 @@ define('_ARGS', [
 		'type' => 'string',
 		'default' => ''
 	],
-	'header_image' => [
+	'primary_colour' => [
+		'type' => 'string',
+		'default' => '#333333'
+	],
+	'secondary_colour' => [
+		'type' => 'string',
+		'default' => '#333333'
+	],
+	'tertiary_colour' => [
+		'type' => 'string',
+		'default' => '#333333'
+	],
+	'theme_css' => [
 		'type' => 'string',
 		'default' => ''
 	],
-	'navbar_colour' => [
+	'theme_css_minified' => [
 		'type' => 'string',
-		'default' => '#333333'
+		'default' => ''
 	],
-	'footer_colour' => [
+	'theme_js' => [
 		'type' => 'string',
-		'default' => '#333333'
+		'default' => ''
+	],
+	'theme_js_minified' => [
+		'type' => 'string',
+		'default' => ''
 	]
 ]);
 
@@ -128,6 +144,12 @@ class _themeSettings {
 		foreach ($settings as $i => $setting) {
 			if (!array_key_exists($i, $defaults)) {
 				unset($settings[$i]);
+			}
+			if ($i == 'theme_css') {
+				$settings['theme_css_minified'] = minify_css($setting);
+			}
+			if ($i == 'theme_js') {
+				$settings['theme_js_minified'] = minify_js($setting);
 			}
 		}
 		update_option(self::$option_key, $settings);
@@ -214,26 +236,38 @@ class _themeMenu {
 				<input id="logo_image" type="text" name="logo_image">
 				<input data-id="logo_image" type="button" class="button-primary choose-file-button" value="Select...">
 			</div>
+			<div class="form-block-ns">
+				<label for="primary_colour">
+					Primary Colour:
+				</label>
+				<input id="primary_colour" type="text" name="primary_colour">
+				<input data-id="primary_colour" type="color" class="choose-colour-button" value="#000000">
+			</div>
+			<div class="form-block-ns">
+				<label for="secondary_colour">
+					Secondary Colour:
+				</label>
+				<input id="secondary_colour" type="text" name="secondary_colour">
+				<input data-id="secondary_colour" type="color" class="choose-colour-button" value="#000000">
+			</div>
+			<div class="form-block-ns">
+				<label for="tertiary_colour">
+					Tertiary Colour:
+				</label>
+				<input id="tertiary_colour" type="text" name="tertiary_colour">
+				<input data-id="tertiary_colour" type="color" class="choose-colour-button" value="#000000">
+			</div>
 			<div class="form-block">
-				<label for="header">
-					Header Image:
+				<label for="theme_css" class="top">
+					Theme CSS:
 				</label>
-				<input id="header_image" type="text" name="header_image">
-				<input data-id="header_image" type="button" class="button-primary choose-file-button" value="Select...">
+				<textarea id="theme_css" class="tabs" name="theme_css"></textarea>
 			</div>
 			<div class="form-block-ns">
-				<label for="navbar_colour">
-					Navbar Colour:
+				<label for="theme_js" class="top">
+					Theme JS:
 				</label>
-				<input id="navbar_colour" type="text" name="navbar_colour">
-				<input data-id="navbar_colour" type="color" class="choose-colour-button" value="#000000">
-			</div>
-			<div class="form-block-ns">
-				<label for="footer_colour">
-					Footer Colour:
-				</label>
-				<input id="footer_colour" type="text" name="footer_colour">
-				<input data-id="footer_colour" type="color" class="choose-colour-button" value="#000000">
+				<textarea id="theme_js" class="tabs" name="theme_js"></textarea>
 			</div>
 			<div>
 				<?php submit_button(); ?>
@@ -372,14 +406,31 @@ class _themeUpdater {
 	}
 }
 
-// get setting
+// get css colours
 
-function getvalue($key, $echo = true) {
+function getcolours($echo = true) {
+	$css = ':root{' .
+		'--primary-colour:' . _themeSettings::get_settings()['primary_colour'] . ';' .
+		'--secondary-colour:' . _themeSettings::get_settings()['secondary_colour'] . ';' .
+		'--tertiary-colour:' . _themeSettings::get_settings()['tertiary_colour'] . ';' .
+	'}';
 	if ($echo) {
-		echo _themeSettings::get_settings()[$key];
+		echo $css;
 	}
 	else {
-		return _themeSettings::get_settings()[$key];
+		return $css;
+	}
+}
+
+// get setting
+
+function getvalue($key, $newline = false, $echo = true) {
+	$n = ($newline) ? "\n" : '';
+	if ($echo) {
+		echo _themeSettings::get_settings()[$key] . $n;
+	}
+	else {
+		return _themeSettings::get_settings()[$key] . $n;
 	}
 }
 
@@ -780,6 +831,9 @@ add_action('edited_category', 'no_category_base_refresh_rules');
 add_action('init', 'no_category_base_permastruct');
 add_action('add_meta_boxes', 'add_post_metadata');
 add_action('save_post', 'save_post_metadata');
+add_action('shutdown', function() {
+	while (@ob_end_flush());
+});
 
 remove_action('wp_head', 'feed_links_extra', 3);
 remove_action('wp_head', 'feed_links', 2);
@@ -805,6 +859,7 @@ remove_action('wp_print_styles', 'print_emoji_styles');
 remove_action('admin_print_scripts', 'print_emoji_detection_script');
 remove_action('admin_print_styles', 'print_emoji_styles');
 remove_action('wp_head', 'wp_resource_hints', 2);
+remove_action('shutdown', 'wp_ob_end_flush_all', 1);
 
 // filters
 
@@ -830,6 +885,7 @@ add_filter('page_css_class', 'nav_attributes_filter', 100, 1);
 
 remove_filter('oembed_dataparse', 'wp_filter_oembed_result', 10);
 remove_filter('the_excerpt', 'wpautop');
+remove_filter('wp_robots', 'wp_robots_max_image_preview_large');
 
 // shortcodes
 
@@ -1174,5 +1230,78 @@ if (!class_exists('WP_Bootstrap_Navwalker')) :
 		}
 	}
 endif;
+
+// minifying functions
+
+function minify_css($input) {
+    if (trim($input) === '') {
+    	return $input;
+    }
+    return preg_replace(
+        [
+            // remove comment(s)
+            '#("(?:[^"\\\]++|\\\.)*+"|\'(?:[^\'\\\\]++|\\\.)*+\')|\/\*(?!\!)(?>.*?\*\/)|^\s*|\s*$#s',
+            // remove unused white-space(s)
+            '#("(?:[^"\\\]++|\\\.)*+"|\'(?:[^\'\\\\]++|\\\.)*+\'|\/\*(?>.*?\*\/))|\s*+;\s*+(})\s*+|\s*+([*$~^|]?+=|[{};,>~]|\s(?![0-9\.])|!important\b)\s*+|([[(:])\s++|\s++([])])|\s++(:)\s*+(?!(?>[^{}"\']++|"(?:[^"\\\]++|\\\.)*+"|\'(?:[^\'\\\\]++|\\\.)*+\')*+{)|^\s++|\s++\z|(\s)\s+#si',
+            // replace `0(cm|em|ex|in|mm|pc|pt|px|vh|vw|%)` with `0`
+            '#(?<=[\s:])(0)(cm|em|ex|in|mm|pc|pt|px|vh|vw|%)#si',
+            // replace `:0 0 0 0` with `:0`
+            '#:(0\s+0|0\s+0\s+0\s+0)(?=[;\}]|\!important)#i',
+            // replace `background-position:0` with `background-position:0 0`
+            '#(background-position):0(?=[;\}])#si',
+            // replace `0.6` with `.6`, but only when preceded by `:`, `,`, `-` or a white-space
+            '#(?<=[\s:,\-])0+\.(\d+)#s',
+            // minify string value
+            '#(\/\*(?>.*?\*\/))|(?<!content\:)([\'"])([a-z_][a-z0-9\-_]*?)\2(?=[\s\{\}\];,])#si',
+            '#(\/\*(?>.*?\*\/))|(\burl\()([\'"])([^\s]+?)\3(\))#si',
+            // minify HEX color code
+            '#(?<=[\s:,\-]\#)([a-f0-6]+)\1([a-f0-6]+)\2([a-f0-6]+)\3#i',
+            // replace `(border|outline):none` with `(border|outline):0`
+            '#(?<=[\{;])(border|outline):none(?=[;\}\!])#',
+            // remove empty selector(s)
+            '#(\/\*(?>.*?\*\/))|(^|[\{\}])(?:[^\s\{\}]+)\{\}#s'
+        ],
+        [
+            '$1',
+            '$1$2$3$4$5$6$7',
+            '$1',
+            ':0',
+            '$1:0 0',
+            '.$1',
+            '$1$3',
+            '$1$2$4$5',
+            '$1$2$3',
+            '$1:0',
+            '$1$2'
+        ],
+    $input);
+}
+
+function minify_js($input) {
+    if (trim($input) === '') {
+    	return $input;
+    }
+    return preg_replace(
+        [
+            // remove comment(s)
+            '#\s*("(?:[^"\\\]++|\\\.)*+"|\'(?:[^\'\\\\]++|\\\.)*+\')\s*|\s*\/\*(?!\!|@cc_on)(?>[\s\S]*?\*\/)\s*|\s*(?<![\:\=])\/\/.*(?=[\n\r]|$)|^\s*|\s*$#',
+            // remove white-space(s) outside the string and regex
+            '#("(?:[^"\\\]++|\\\.)*+"|\'(?:[^\'\\\\]++|\\\.)*+\'|\/\*(?>.*?\*\/)|\/(?!\/)[^\n\r]*?\/(?=[\s.,;]|[gimuy]|$))|\s*([!%&*\(\)\-=+\[\]\{\}|;:,.<>?\/])\s*#s',
+            // remove the last semicolon
+            '#;+\}#',
+            // minify object attribute(s) except JSON attribute(s). From `{'foo':'bar'}` to `{foo:'bar'}`
+            '#([\{,])([\'])(\d+|[a-z_][a-z0-9_]*)\2(?=\:)#i',
+            // --ibid. From `foo['bar']` to `foo.bar`
+            '#([a-z0-9_\)\]])\[([\'"])([a-z_][a-z0-9_]*)\2\]#i'
+        ],
+        [
+            '$1',
+            '$1$2',
+            '}',
+            '$1$3',
+            '$1.$3'
+        ],
+    $input);
+}
 
 // EOF

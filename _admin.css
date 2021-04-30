@@ -8,13 +8,28 @@
 	margin-top: 1px;
 }
 
+#_theme-form input['text'] {
+	width: 200px;
+}
+
 #_theme-form label {
 	display: inline-block;
-	width: 100px;
+	width: 120px;
+	padding-left: 10px;
+}
+
+#_theme-form label.top {
+	padding-top: 4px;
+	vertical-align: top;
 }
 
 #_theme-form select {
-	width: 168px;
+	width: 218px;
+}
+
+#_theme-form textarea {
+	width: 350px;
+	height: 200px;
 }
 
 #_theme-form .choose-colour-button {
