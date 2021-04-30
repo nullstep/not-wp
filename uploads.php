@@ -2,12 +2,6 @@
 
 require_once($_SERVER['DOCUMENT_ROOT'].'/wp-load.php');
 
-// ignore ips
-
-define('_IGNORE', [
-	// add ips here
-]);
-
 // mime types
 
 $mimes = [
