@@ -9,7 +9,7 @@
 	<title><?php echo trim(wp_title('', false)); ?><?php if (wp_title('', false)) { echo ' : '; } ?><?php bloginfo('name'); ?></title>
 
 	<link href="/uploads/<?php getvalue('favicon_image'); ?>" rel="shortcut icon">
-	<link href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" rel="stylesheet">
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <?php wp_head(); ?>
 	<style>
 		<?php getcolours(); ?><?php getvalue('theme_css_minified', true); ?>
