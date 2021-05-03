@@ -24,7 +24,7 @@ define('_IGNORE', [
 
 // theme api
 
-define('_ARGS', [
+define('_ARGS_NOT_WP', [
 	'container_class' => [
 		'type' => 'string',
 		'default' => 'container'
@@ -70,19 +70,17 @@ define('_ARGS', [
 class _themeAPI {
 	public function add_routes() {
 		register_rest_route(_THEME . '-theme-api/v1', '/settings', [
-				'methods' => 'POST',
-				'callback' => [$this, 'update_settings'],
-				'args' => _themeSettings::args(),
-				'permission_callback' => [$this, 'permissions']
-			]
-		);
+			'methods' => 'POST',
+			'callback' => [$this, 'update_settings'],
+			'args' => _themeSettings::args(),
+			'permission_callback' => [$this, 'permissions']
+		]);
 		register_rest_route(_THEME . '-theme-api/v1', '/settings', [
-				'methods' => 'GET',
-				'callback' => [$this, 'get_settings'],
-				'args' => [],
-				'permission_callback' => [$this, 'permissions']
-			]
-		);
+			'methods' => 'GET',
+			'callback' => [$this, 'get_settings'],
+			'args' => [],
+			'permission_callback' => [$this, 'permissions']
+		]);
 	}
 
 	public function permissions() {
@@ -107,8 +105,8 @@ class _themeSettings {
 	protected static $option_key = _THEME . '-theme-settings';
 
 	public static function args() {
-		$args = _ARGS;
-		foreach (_ARGS as $key => $val) {
+		$args = _ARGS_NOT_WP;
+		foreach (_ARGS_NOT_WP as $key => $val) {
 			$val['required'] = true;
 			switch ($val['type']) {
 				case 'integer': {
@@ -126,7 +124,7 @@ class _themeSettings {
 
 	public static function get_settings() {
 		$defaults = [];
-		foreach (_ARGS as $key => $val) {
+		foreach (_ARGS_NOT_WP as $key => $val) {
 			$defaults[$key] = $val['default'];
 		}
 		$saved = get_option(self::$option_key, []);
@@ -138,7 +136,7 @@ class _themeSettings {
 
 	public static function save_settings(array $settings) {
 		$defaults = [];
-		foreach (_ARGS as $key => $val) {
+		foreach (_ARGS_NOT_WP as $key => $val) {
 			$defaults[$key] = $val['default'];
 		}
 		foreach ($settings as $i => $setting) {
@@ -173,7 +171,7 @@ class _themeMenu {
 			'manage_options',
 			$this->slug,
 			[$this, 'render_admin'],
-			'dashicons-smiley',
+			'dashicons-palmtree',
 			2
 		);
 	}
@@ -206,75 +204,90 @@ class _themeMenu {
 		$this->enqueue_assets();
 ?>
 		<style>
-			#wpwrap {
+			.not_wp-tab {
+				display: none;
 				background: url(<?php echo $this->assets_url . '/not_wp.svg'; ?>) no-repeat;
 			}
 		</style>
-		<h2>not_wp</h2>
-		<p style="max-width:500px">Configure your settings...</p>
-		<form id="_theme-form" method="post">
-			<div class="form-block">
-				<label for="container_class">
-					Container Width:
-				</label>
-				<select id="container_class" name="container_class">
-					<option value="container-fluid">Full Screen</option>
-					<option value="container">Boxed</option>
-				</select>					
-			</div>
-			<div class="form-block">
-				<label for="favicon_image">
-					Favicon Image:
-				</label>
-				<input id="favicon_image" type="text" name="favicon_image">
-				<input data-id="favicon_image" type="button" class="button-primary choose-file-button" value="Select...">
-			</div>
-			<div class="form-block">
-				<label for="logo_image">
-					Logo Image:
-				</label>
-				<input id="logo_image" type="text" name="logo_image">
-				<input data-id="logo_image" type="button" class="button-primary choose-file-button" value="Select...">
-			</div>
-			<div class="form-block-ns">
-				<label for="primary_colour">
-					Primary Colour:
-				</label>
-				<input id="primary_colour" type="text" name="primary_colour">
-				<input data-id="primary_colour" type="color" class="choose-colour-button" value="#000000">
-			</div>
-			<div class="form-block-ns">
-				<label for="secondary_colour">
-					Secondary Colour:
-				</label>
-				<input id="secondary_colour" type="text" name="secondary_colour">
-				<input data-id="secondary_colour" type="color" class="choose-colour-button" value="#000000">
-			</div>
-			<div class="form-block-ns">
-				<label for="tertiary_colour">
-					Tertiary Colour:
-				</label>
-				<input id="tertiary_colour" type="text" name="tertiary_colour">
-				<input data-id="tertiary_colour" type="color" class="choose-colour-button" value="#000000">
-			</div>
-			<div class="form-block">
-				<label for="theme_css" class="top">
-					Theme CSS:
-				</label>
-				<textarea id="theme_css" class="tabs" name="theme_css"></textarea>
-			</div>
-			<div class="form-block-ns">
-				<label for="theme_js" class="top">
-					Theme JS:
-				</label>
-				<textarea id="theme_js" class="tabs" name="theme_js"></textarea>
-			</div>
-			<div>
-				<?php submit_button(); ?>
-			</div>
-			<div id="feedback">
-			</div>
-		</form>
+		<div class="wrap">
+			<h1>not_wp</h1>
+			<p style="max-width:500px">Configure your theme settings...</p>
+			<form id="not_wp-form" method="post">
+				<nav id="not_wp-nav" class="nav-tab-wrapper">
+					<a href="#not_wp-settings" class="nav-tab nav-tab-active">Settings</a>
+					<a href="#not_wp-css" class="nav-tab">CSS</a>
+					<a href="#not_wp-js" class="nav-tab">JS</a>
+				</nav>
+				<div class="tab-content">
+					<div id=not_wp-settings class="not_wp-tab">
+						<div class="form-block">
+							<label for="container_class">
+								Container Width:
+							</label>
+							<select id="container_class" name="container_class">
+								<option value="container-fluid">Full Screen</option>
+								<option value="container">Boxed</option>
+							</select>					
+						</div>
+						<div class="form-block">
+							<label for="favicon_image">
+								Favicon Image:
+							</label>
+							<input id="favicon_image" type="text" name="favicon_image">
+							<input data-id="favicon_image" type="button" class="button-primary choose-file-button" value="Select...">
+						</div>
+						<div class="form-block">
+							<label for="logo_image">
+								Logo Image:
+							</label>
+							<input id="logo_image" type="text" name="logo_image">
+							<input data-id="logo_image" type="button" class="button-primary choose-file-button" value="Select...">
+						</div>
+						<div class="form-block-ns">
+							<label for="primary_colour">
+								Primary Colour:
+							</label>
+							<input id="primary_colour" type="text" name="primary_colour">
+							<input data-id="primary_colour" type="color" class="choose-colour-button" value="#000000">
+						</div>
+						<div class="form-block-ns">
+							<label for="secondary_colour">
+								Secondary Colour:
+							</label>
+							<input id="secondary_colour" type="text" name="secondary_colour">
+							<input data-id="secondary_colour" type="color" class="choose-colour-button" value="#000000">
+						</div>
+						<div class="form-block-ns">
+							<label for="tertiary_colour">
+								Tertiary Colour:
+							</label>
+							<input id="tertiary_colour" type="text" name="tertiary_colour">
+							<input data-id="tertiary_colour" type="color" class="choose-colour-button" value="#000000">
+						</div>
+					</div>
+					<div id="not_wp-css" class="not_wp-tab">
+						<div class="form-block">
+							<textarea id="theme_css" class="tabs" name="theme_css"></textarea>
+						</div>
+					</div>
+					<div id="not_wp-js" class="not_wp-tab">
+						<div class="form-block">
+							<textarea id="theme_js" class="tabs" name="theme_js"></textarea>
+						</div> 
+					</div>
+				</div>
+				<div>
+					<?php submit_button(); ?>
+				</div>
+				<div id="feedback">
+				</div>
+			</form>
+			<script>
+				jQuery(function($){
+
+				});
+			</script>
+		</div>
 <?php
 	}
 }
@@ -403,6 +416,195 @@ class _themeUpdater {
 
 	protected function remote_get($url, $args = []) {
 		return wp_remote_get($url, $args);
+	}
+}
+
+// widget class
+
+class _themeWidget extends WP_Widget {
+	protected $registered = false;
+	protected $default_instance = [
+		'title'   => '',
+		'content' => ''
+	];
+ 
+	public function __construct() {
+		$widget_ops  = [
+			'classname' => 'nwp',
+			'description' => 'not_wp widget',
+			'customize_selective_refresh' => true
+		];
+		$control_ops = [
+			'width' => 400,
+			'height' => 350
+		];
+		parent::__construct(
+			'nwp',
+			'not_wp',
+			$widget_ops,
+			$control_ops
+		);
+	}
+ 
+	public function _register_one($number = -1) {
+		parent::_register_one($number);
+		if ($this->registered) {
+			return;
+		}
+		$this->registered = true;
+ 
+		wp_add_inline_script('custom-html-widgets', sprintf('wp.customHtmlWidgets.idBases.push(%s);', wp_json_encode($this->id_base)));
+		add_action('admin_print_scripts-widgets.php', [$this, 'enqueue_admin_scripts']);
+		add_action('admin_footer-widgets.php', ['_themeWidget', 'render_control_template_scripts']);
+	}
+ 
+	public function _filter_gallery_shortcode_attrs($attrs) {
+		if (!is_singular() && empty($attrs['id']) && empty($attrs['include'])) {
+			$attrs['id'] = -1;
+		}
+		return $attrs;
+	}
+ 
+	public function widget($args, $instance) {
+		global $post;
+		$original_post = $post;
+
+		if (is_singular()) {
+			$post = get_queried_object();
+		}
+		else {
+			$post = null;
+		}
+ 
+		add_filter('shortcode_atts_gallery', [$this, '_filter_gallery_shortcode_attrs']);
+		$instance = array_merge($this->default_instance, $instance);
+		$title = apply_filters('widget_title', $instance['title'], $instance, $this->id_base);
+		$css_classes = empty($instance['css_classes']) ? '' : $instance['css_classes'];
+		$show_title = !empty($instance['show_title']) ? '1' : '0';
+		$parse_php = !empty($instance['parse_php']) ? '1' : '0';
+		$do_shortcodes = !empty($instance['do_shortcodes']) ? '1' : '0';
+ 
+		$instance_copy = array_merge(
+			$instance, [
+				'text' => isset($instance['content']) ? $instance['content'] : '',
+				'filter' => false,
+				'visual' => false
+			]
+		);
+
+		unset($instance_copy['content']); 
+		$content = apply_filters('widget_text', $instance['content'], $instance_copy, $this);
+		$post = $original_post;
+		remove_filter('shortcode_atts_gallery', [$this, '_filter_gallery_shortcode_attrs']);
+
+		if ($css_classes) {
+			if (strpos($args['before_widget'], 'class') === false) {
+				$args['before_widget'] = str_replace('>', ' class="'. $css_classes . '">', $args['before_widget']);
+			}
+			else {
+				$args['before_widget'] = str_replace('class="', 'class="'. $css_classes . ' ', $args['before_widget']);
+			}
+		}
+
+		if ($parse_php) {
+			ob_start();
+			eval('?>' . $content);
+			$content = ob_get_contents();
+			ob_end_clean();
+		}
+
+		if ($do_shortcodes) {
+			$content = do_shortcode($content);
+		}
+
+		echo $args['before_widget'];
+
+		if ($show_title && $title) {
+			echo $args['before_title'] . $title . $args['after_title'];
+		}
+
+		echo $content;
+		echo $args['after_widget'];
+	}
+ 
+
+	public function update($new_instance, $old_instance) {
+		$instance = array_merge($this->default_instance, $old_instance);
+		$instance['title'] = sanitize_text_field($new_instance['title']);
+		$instance['css_classes'] = sanitize_text_field($new_instance['css_classes']);
+		$instance['show_title'] = !empty($new_instance['show_title'] ) ? 1 : 0;
+		$instance['parse_php'] = !empty($new_instance['parse_php'] ) ? 1 : 0;
+		$instance['do_shortcodes'] = !empty($new_instance['do_shortcodes'] ) ? 1 : 0;
+
+		if (current_user_can('unfiltered_html')) {
+			$instance['content'] = $new_instance['content'];
+		}
+		else {
+			$instance['content'] = wp_kses_post($new_instance['content']);
+		}
+		return $instance;
+	}
+ 
+	public function enqueue_admin_scripts() {
+		$settings = wp_enqueue_code_editor([
+			'type' => 'text/html',
+			'codemirror' => [
+				'indentUnit' => 2,
+				'tabSize' => 2
+			]
+		]);
+ 
+		wp_enqueue_script('custom-html-widgets');
+		if (empty($settings)) {
+			$settings = [
+				'disabled' => true,
+			];
+		}
+	}
+ 
+	public function form($instance) {
+		$instance = wp_parse_args((array) $instance, $this->default_instance);
+		$css_classes = isset($instance['css_classes']) ? $instance['css_classes'] : '';
+		$show_title = isset($instance['show_title']) ? (bool) $instance['show_title'] : false;
+		$parse_php = isset($instance['parse_php']) ? (bool) $instance['parse_php'] : false;
+		$do_shortcodes = isset($instance['do_shortcodes']) ? (bool) $instance['do_shortcodes'] : false;
+?>
+		<input id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" class="title sync-input" type="hidden" value="<?php echo esc_attr($instance['title']); ?>">
+		<textarea id="<?php echo $this->get_field_id('content'); ?>" name="<?php echo $this->get_field_name('content'); ?>" class="content sync-input" hidden><?php echo esc_textarea($instance['content']); ?></textarea>
+		<p>
+			<label for="<?php echo $this->get_field_id('css_classes'); ?>">CSS Classes</label>
+			<input id="<?php echo $this->get_field_id('css_classes'); ?>" name="<?php echo $this->get_field_name('css_classes'); ?>" class="widefat" type="text" value="<?php echo esc_attr($css_classes); ?>">
+		</p>
+		<p>
+			<input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id('show_title'); ?>" name="<?php echo $this->get_field_name('show_title'); ?>"<?php checked($show_title); ?>>
+			<label for="<?php echo $this->get_field_id('show_title'); ?>">Show Title</label>
+		</p>
+		<p>
+			<input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id('parse_php'); ?>" name="<?php echo $this->get_field_name('parse_php'); ?>"<?php checked($parse_php); ?>>
+			<label for="<?php echo $this->get_field_id('parse_php'); ?>">Parse PHP</label>
+		</p>
+		<p>
+			<input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id('do_shortcodes'); ?>" name="<?php echo $this->get_field_name('do_shortcodes'); ?>"<?php checked($do_shortcodes); ?>>
+			<label for="<?php echo $this->get_field_id('do_shortcodes'); ?>">Do Shortcodes</label>
+		</p>
+<?php
+	}
+ 
+	public static function render_control_template_scripts() {
+?>
+		<script type="text/html" id="tmpl-widget-custom-html-control-fields">
+			<# var elementIdPrefix = 'el' + String(Math.random()).replace(/\D/g, '') + '_' #>
+			<p>
+				<label for="{{ elementIdPrefix }}title"><?php esc_html_e('Title:'); ?></label>
+				<input id="{{ elementIdPrefix }}title" type="text" class="widefat title">
+			</p> 
+			<p>
+				<label for="{{ elementIdPrefix }}content" id="{{ elementIdPrefix }}content-label"><?php esc_html_e( 'Content:' ); ?></label>
+				<textarea id="{{ elementIdPrefix }}content" class="widefat code content" rows="16" cols="20"></textarea>
+			</p> 
+			<div class="code-editor-error-container"></div>
+		</script>
+<?php
 	}
 }
 
@@ -541,14 +743,14 @@ function latest_posts($count) {
 // page column class metadata
 
 function add_post_metadata() {
-    $screen = 'page';
-    add_meta_box('bla-bla-bla', 'Column Class', 'add_post_metadata_callback', $screen, 'side', 'default', null);
+	$screen = 'page';
+	add_meta_box('bla-bla-bla', 'Column Class', 'add_post_metadata_callback', $screen, 'side', 'default', null);
 }
 
 function add_post_metadata_callback($post) {
-    wp_nonce_field('column_class_save_data', 'column_class_nonce');
-    $value = get_post_meta($post->ID, 'column_class', true);
-    echo '<input class="components-text-control__input" style="margin-top:8px" type="text" name="column_class" value="' . esc_attr($value) . '" placeholder="Enter Column Class...">';
+	wp_nonce_field('column_class_save_data', 'column_class_nonce');
+	$value = get_post_meta($post->ID, 'column_class', true);
+	echo '<input class="components-text-control__input" style="margin-top:8px" type="text" name="column_class" value="' . esc_attr($value) . '" placeholder="Enter Column Class...">';
 }
  
 function save_post_metadata($post_id) {
@@ -572,13 +774,14 @@ function save_post_metadata($post_id) {
 		}
 	}
 
-    $data = sanitize_text_field($_POST['column_class']);
-    update_post_meta($post_id, 'column_class', $data);
+	$data = sanitize_text_field($_POST['column_class']);
+	update_post_meta($post_id, 'column_class', $data);
 }
 
 // fix content urls/classes etc
 
 function fix_content($content) {
+	libxml_use_internal_errors(true);
 	$dom = new DOMDocument;
 	$dom->strictErrorChecking = false;
 	$dom->loadHTML(mb_convert_encoding($content, 'HTML-ENTITIES', 'UTF-8'), LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
@@ -610,20 +813,15 @@ function remove_category_rel_from_category_list($thelist) {
 
 function remove_recent_comments_style() {
 	global $wp_widget_factory;
-	remove_action('wp_head', array(
+	remove_action('wp_head', [
 		$wp_widget_factory->widgets['WP_Widget_Recent_Comments'],
 		'recent_comments_style'
-	));
+	]);
 }
 
-function remove_block_library_css() {
+function remove_crap() {
 	wp_dequeue_style('wp-block-library');
-}
-
-function remove_wp_jquery() {
-	if (!is_admin()) {
-		wp_deregister_script('jquery');
-	}
+	wp_deregister_script('jquery');
 }
 
 // pagination
@@ -631,12 +829,12 @@ function remove_wp_jquery() {
 function pagination() {
 	global $wp_query;
 	$big = 999999999;
-	echo paginate_links(array(
+	echo paginate_links([
 		'base' => str_replace($big, '%#%', get_pagenum_link($big)),
 		'format' => '?paged=%#%',
 		'current' => max(1, get_query_var('paged')),
 		'total' => $wp_query->max_num_pages
-	));
+	]);
 }
 
 // excerpts
@@ -685,6 +883,12 @@ function flush_htaccess() {
 register_nav_menus([
 	'primary' => 'Primary Menu'
 ]);
+
+// logo shortcode
+
+function logo_shortcode($atts = [], $content = null, $tag = '') {
+	return '<img src="/uploads/' . _themeSettings::get_settings()['logo_image'] . '" class="logo ' . $content .'">';
+}
 
 // include file shortcode
 
@@ -796,6 +1000,33 @@ function nav_attributes_filter($var) {
 	return is_array($var) ? array_intersect($var, ['current-menu-item', 'nav-item']) : '';
 }
 
+// add widget stuff
+
+function register_widget_stuff() {
+	$widgets = [
+		'top-area' => 'top area',
+		'header-area' => 'header area',
+		'page-top' => 'page top',
+		'page-bottom' => 'page bottom',
+		'footer-top' => 'footer top',
+		'footer-bottom' => 'footer bottom'
+	];
+
+	foreach  ($widgets as $class => $title) {
+		register_sidebar([
+			'id' => $class,
+			'name' => $title,
+			'description' => $title . ' widget area',
+			'before_widget' => '<div id="%1$s" class="widget %2$s">',
+			'after_widget' => '</div>',
+			'before_title' => '<div class="' . $class . '-title-holder"><h3 class="' . $class . '-title">',
+			'after_title' => '</h3></div>'
+		]);
+	}
+
+	register_widget('_themeWidget');
+}
+
 // set some wp options
 
 function set_wp_options() {
@@ -814,15 +1045,20 @@ function set_wp_options() {
 
 $updater = new _themeUpdater();
 
+// login screen
+
+function not_wp_login_logo() {
+	echo '<style>h1 a { background-image:url(' . get_template_directory_uri() . '/not_wp_dark.svg) !important; width: 300px !important; background-size: auto auto !important; }</style>';
+}
+
 // actions
 
 add_action('init', [$updater, 'init']);
 add_action('init', 'set_wp_options');
 add_action('widgets_init', 'remove_recent_comments_style');
 add_action('init', 'pagination');
-add_action('init', 'remove_wp_jquery');
 add_action('admin_init', 'flush_htaccess');
-add_action('wp_enqueue_scripts', 'remove_block_library_css');
+add_action('wp_enqueue_scripts', 'remove_crap');
 add_action('manage_posts_custom_column', 'posts_custom_column_views', 5, 2);
 add_action('manage_pages_custom_column', 'pages_custom_column_views', 5, 2);
 add_action('created_category', 'no_category_base_refresh_rules');
@@ -831,6 +1067,8 @@ add_action('edited_category', 'no_category_base_refresh_rules');
 add_action('init', 'no_category_base_permastruct');
 add_action('add_meta_boxes', 'add_post_metadata');
 add_action('save_post', 'save_post_metadata');
+add_action('widgets_init', 'register_widget_stuff');
+add_action('login_head', 'not_wp_login_logo');
 add_action('shutdown', function() {
 	while (@ob_end_flush());
 });
@@ -882,6 +1120,7 @@ add_filter('request', 'no_category_base_request');
 add_filter('nav_menu_css_class', 'nav_attributes_filter', 100, 1);
 add_filter('nav_menu_item_id', 'nav_attributes_filter', 100, 1);
 add_filter('page_css_class', 'nav_attributes_filter', 100, 1);
+//add_filter('customize_value_custom_css', 'custom_css', 10, 2 );
 
 remove_filter('oembed_dataparse', 'wp_filter_oembed_result', 10);
 remove_filter('the_excerpt', 'wpautop');
@@ -889,6 +1128,7 @@ remove_filter('wp_robots', 'wp_robots_max_image_preview_large');
 
 // shortcodes
 
+add_shortcode('logo', 'logo_shortcode');
 add_shortcode('inc', 'inc_shortcode');
 add_shortcode('video', 'video_shortcode');
 add_shortcode('children', 'children_shortcode');
@@ -1234,74 +1474,74 @@ endif;
 // minifying functions
 
 function minify_css($input) {
-    if (trim($input) === '') {
-    	return $input;
-    }
-    return preg_replace(
-        [
-            // remove comment(s)
-            '#("(?:[^"\\\]++|\\\.)*+"|\'(?:[^\'\\\\]++|\\\.)*+\')|\/\*(?!\!)(?>.*?\*\/)|^\s*|\s*$#s',
-            // remove unused white-space(s)
-            '#("(?:[^"\\\]++|\\\.)*+"|\'(?:[^\'\\\\]++|\\\.)*+\'|\/\*(?>.*?\*\/))|\s*+;\s*+(})\s*+|\s*+([*$~^|]?+=|[{};,>~]|\s(?![0-9\.])|!important\b)\s*+|([[(:])\s++|\s++([])])|\s++(:)\s*+(?!(?>[^{}"\']++|"(?:[^"\\\]++|\\\.)*+"|\'(?:[^\'\\\\]++|\\\.)*+\')*+{)|^\s++|\s++\z|(\s)\s+#si',
-            // replace `0(cm|em|ex|in|mm|pc|pt|px|vh|vw|%)` with `0`
-            '#(?<=[\s:])(0)(cm|em|ex|in|mm|pc|pt|px|vh|vw|%)#si',
-            // replace `:0 0 0 0` with `:0`
-            '#:(0\s+0|0\s+0\s+0\s+0)(?=[;\}]|\!important)#i',
-            // replace `background-position:0` with `background-position:0 0`
-            '#(background-position):0(?=[;\}])#si',
-            // replace `0.6` with `.6`, but only when preceded by `:`, `,`, `-` or a white-space
-            '#(?<=[\s:,\-])0+\.(\d+)#s',
-            // minify string value
-            '#(\/\*(?>.*?\*\/))|(?<!content\:)([\'"])([a-z_][a-z0-9\-_]*?)\2(?=[\s\{\}\];,])#si',
-            '#(\/\*(?>.*?\*\/))|(\burl\()([\'"])([^\s]+?)\3(\))#si',
-            // minify HEX color code
-            '#(?<=[\s:,\-]\#)([a-f0-6]+)\1([a-f0-6]+)\2([a-f0-6]+)\3#i',
-            // replace `(border|outline):none` with `(border|outline):0`
-            '#(?<=[\{;])(border|outline):none(?=[;\}\!])#',
-            // remove empty selector(s)
-            '#(\/\*(?>.*?\*\/))|(^|[\{\}])(?:[^\s\{\}]+)\{\}#s'
-        ],
-        [
-            '$1',
-            '$1$2$3$4$5$6$7',
-            '$1',
-            ':0',
-            '$1:0 0',
-            '.$1',
-            '$1$3',
-            '$1$2$4$5',
-            '$1$2$3',
-            '$1:0',
-            '$1$2'
-        ],
-    $input);
+	if (trim($input) === '') {
+		return $input;
+	}
+	return preg_replace(
+		[
+			// remove comment(s)
+			'#("(?:[^"\\\]++|\\\.)*+"|\'(?:[^\'\\\\]++|\\\.)*+\')|\/\*(?!\!)(?>.*?\*\/)|^\s*|\s*$#s',
+			// remove unused white-space(s)
+			'#("(?:[^"\\\]++|\\\.)*+"|\'(?:[^\'\\\\]++|\\\.)*+\'|\/\*(?>.*?\*\/))|\s*+;\s*+(})\s*+|\s*+([*$~^|]?+=|[{};,>~]|\s(?![0-9\.])|!important\b)\s*+|([[(:])\s++|\s++([])])|\s++(:)\s*+(?!(?>[^{}"\']++|"(?:[^"\\\]++|\\\.)*+"|\'(?:[^\'\\\\]++|\\\.)*+\')*+{)|^\s++|\s++\z|(\s)\s+#si',
+			// replace `0(cm|em|ex|in|mm|pc|pt|px|vh|vw|%)` with `0`
+			'#(?<=[\s:])(0)(cm|em|ex|in|mm|pc|pt|px|vh|vw|%)#si',
+			// replace `:0 0 0 0` with `:0`
+			'#:(0\s+0|0\s+0\s+0\s+0)(?=[;\}]|\!important)#i',
+			// replace `background-position:0` with `background-position:0 0`
+			'#(background-position):0(?=[;\}])#si',
+			// replace `0.6` with `.6`, but only when preceded by `:`, `,`, `-` or a white-space
+			'#(?<=[\s:,\-])0+\.(\d+)#s',
+			// minify string value
+			'#(\/\*(?>.*?\*\/))|(?<!content\:)([\'"])([a-z_][a-z0-9\-_]*?)\2(?=[\s\{\}\];,])#si',
+			'#(\/\*(?>.*?\*\/))|(\burl\()([\'"])([^\s]+?)\3(\))#si',
+			// minify HEX color code
+			'#(?<=[\s:,\-]\#)([a-f0-6]+)\1([a-f0-6]+)\2([a-f0-6]+)\3#i',
+			// replace `(border|outline):none` with `(border|outline):0`
+			'#(?<=[\{;])(border|outline):none(?=[;\}\!])#',
+			// remove empty selector(s)
+			'#(\/\*(?>.*?\*\/))|(^|[\{\}])(?:[^\s\{\}]+)\{\}#s'
+		],
+		[
+			'$1',
+			'$1$2$3$4$5$6$7',
+			'$1',
+			':0',
+			'$1:0 0',
+			'.$1',
+			'$1$3',
+			'$1$2$4$5',
+			'$1$2$3',
+			'$1:0',
+			'$1$2'
+		],
+	$input);
 }
 
 function minify_js($input) {
-    if (trim($input) === '') {
-    	return $input;
-    }
-    return preg_replace(
-        [
-            // remove comment(s)
-            '#\s*("(?:[^"\\\]++|\\\.)*+"|\'(?:[^\'\\\\]++|\\\.)*+\')\s*|\s*\/\*(?!\!|@cc_on)(?>[\s\S]*?\*\/)\s*|\s*(?<![\:\=])\/\/.*(?=[\n\r]|$)|^\s*|\s*$#',
-            // remove white-space(s) outside the string and regex
-            '#("(?:[^"\\\]++|\\\.)*+"|\'(?:[^\'\\\\]++|\\\.)*+\'|\/\*(?>.*?\*\/)|\/(?!\/)[^\n\r]*?\/(?=[\s.,;]|[gimuy]|$))|\s*([!%&*\(\)\-=+\[\]\{\}|;:,.<>?\/])\s*#s',
-            // remove the last semicolon
-            '#;+\}#',
-            // minify object attribute(s) except JSON attribute(s). From `{'foo':'bar'}` to `{foo:'bar'}`
-            '#([\{,])([\'])(\d+|[a-z_][a-z0-9_]*)\2(?=\:)#i',
-            // --ibid. From `foo['bar']` to `foo.bar`
-            '#([a-z0-9_\)\]])\[([\'"])([a-z_][a-z0-9_]*)\2\]#i'
-        ],
-        [
-            '$1',
-            '$1$2',
-            '}',
-            '$1$3',
-            '$1.$3'
-        ],
-    $input);
+	if (trim($input) === '') {
+		return $input;
+	}
+	return preg_replace(
+		[
+			// remove comment(s)
+			'#\s*("(?:[^"\\\]++|\\\.)*+"|\'(?:[^\'\\\\]++|\\\.)*+\')\s*|\s*\/\*(?!\!|@cc_on)(?>[\s\S]*?\*\/)\s*|\s*(?<![\:\=])\/\/.*(?=[\n\r]|$)|^\s*|\s*$#',
+			// remove white-space(s) outside the string and regex
+			'#("(?:[^"\\\]++|\\\.)*+"|\'(?:[^\'\\\\]++|\\\.)*+\'|\/\*(?>.*?\*\/)|\/(?!\/)[^\n\r]*?\/(?=[\s.,;]|[gimuy]|$))|\s*([!%&*\(\)\-=+\[\]\{\}|;:,.<>?\/])\s*#s',
+			// remove the last semicolon
+			'#;+\}#',
+			// minify object attribute(s) except JSON attribute(s). From `{'foo':'bar'}` to `{foo:'bar'}`
+			'#([\{,])([\'])(\d+|[a-z_][a-z0-9_]*)\2(?=\:)#i',
+			// --ibid. From `foo['bar']` to `foo.bar`
+			'#([a-z0-9_\)\]])\[([\'"])([a-z_][a-z0-9_]*)\2\]#i'
+		],
+		[
+			'$1',
+			'$1$2',
+			'}',
+			'$1$3',
+			'$1.$3'
+		],
+	$input);
 }
 
 // EOF

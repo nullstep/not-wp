@@ -2,6 +2,8 @@
 <?php get_header(); ?>
 
 			<main class="row">
+				<?php if (is_active_sidebar('page-top')) dynamic_sidebar('page-top'); ?>
+
 				<section class="col-sm-12">
 					<h2><?php the_title(); ?></h2>
 <?php if (have_posts()): while (have_posts()) : the_post(); ?>
@@ -16,5 +18,7 @@
 					</article>
 <?php endif; ?>
 				</section>
+				<?php if (is_active_sidebar('page-bottom')) dynamic_sidebar('page-bottom'); ?>
+
 			</main>
 <?php get_footer(); ?>

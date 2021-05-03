@@ -3,10 +3,11 @@
 	<div id="footer-area">
 		<div class="<?php getvalue('container_class'); ?>">
 			<footer class="row">
-				<section class="col-sm-12">
-					<p class="py-5">&copy; <?php echo date('Y'); ?></p>
-<?php wp_footer(); ?>
-				</section>
+				<?php if (is_active_sidebar('footer-top')) dynamic_sidebar('footer-top'); ?>
+
+				<section class="col-sm-12"><?php wp_footer(); ?></section>
+				<?php if (is_active_sidebar('footer-bottom')) dynamic_sidebar('footer-bottom'); ?>
+
 			</footer>
 		</div>
 	</div>

@@ -1,38 +1,39 @@
 /* theme admin css */
 
-#_theme-form .form-block {
+#not_wp-form .form-block {
 	margin-top: 5px;
 }
 
-#_theme-form .form-block-ns {
+#not_wp-form .form-block-ns {
 	margin-top: 1px;
 }
 
-#_theme-form input['text'] {
-	width: 200px;
+#not_wp-form input[type=text] {
+	width: 218px;
 }
 
-#_theme-form label {
+#not_wp-form label {
 	display: inline-block;
 	width: 120px;
 	padding-left: 10px;
+	padding-top: 0;
 }
 
-#_theme-form label.top {
+#not_wp-form label.top {
 	padding-top: 4px;
 	vertical-align: top;
 }
 
-#_theme-form select {
+#not_wp-form select {
 	width: 218px;
 }
 
-#_theme-form textarea {
+#not_wp-form textarea {
 	width: 350px;
 	height: 200px;
 }
 
-#_theme-form .choose-colour-button {
+#not_wp-form .choose-colour-button {
 	position: relative;
 	height: 30px;
 	top: 4px;

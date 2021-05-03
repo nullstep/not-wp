@@ -20,12 +20,8 @@
 	<div id="top-area">
 		<div class="<?php echo $container; ?>">
 			<div class="row">
-				<div id="logo-area" class="col-sm-6">
-					<a href="/"><img id="logo" src="/uploads/<?php getvalue('logo_image'); ?>" class="shrink"></a>
-				</div>
-				<div id="title-area" class="col-sm-6">
-					<p class="my-3"><?php bloginfo('description'); ?></p>
-				</div>
+				<?php if (is_active_sidebar('top-area')) dynamic_sidebar('top-area'); ?>
+
 			</div>
 		</div>
 	</div>
@@ -37,12 +33,8 @@
 	<div id="header-area">
 		<div class="<?php echo $container; ?>">
 			<header class="row">
-				<div class="col-sm-6">
-					<!-- -->
-				</div>
-				<div class="col-sm-6">
-					<!-- -->
-				</div>
+				<?php if (is_active_sidebar('header-area')) dynamic_sidebar('header-area'); ?>
+
 			</header>
 		</div>
 	</div>

@@ -173,6 +173,9 @@ if (isset($_GET['file'])) {
 		$ip = $_SERVER['REMOTE_ADDR'];
 		if (!in_array($ip, _IGNORE)) {
 			$post = get_page_by_title($name, 'OBJECT', 'attachment');
+			if (!$post) {
+				header('Location: /404');
+			}
 			$count = get_post_meta($post->ID, 'file_downloads', true);
 			update_post_meta($post->ID, 'file_downloads', ($count != '') ? (int)$count + 1 : 1);
 		}

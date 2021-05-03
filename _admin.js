@@ -12,6 +12,14 @@ jQuery(function($) {
 		'theme_js'
 	];
 	var _theme = not_wp;
+	$('#not_wp-settings').show();
+	$('#not_wp-nav a').on('click', function() {
+		$('#not_wp-nav a').removeClass('nav-tab-active');
+		var tab = $(this).attr('href');
+		$('.not_wp-tab').hide();
+		$(this).addClass('nav-tab-active');
+		$(tab).show();
+	});
 	$.ajax({
 		method: 'GET',
 		url: _theme.api.url,
@@ -95,7 +103,7 @@ jQuery(function($) {
 		enabled = true;
 		return true;
 	});
-	$('#_theme-form').on('submit', function(e) {
+	$('#not_wp-form').on('submit', function(e) {
 		e.preventDefault();
 		$('#submit').text('...').attr('disabled', 'disabled');
 		var data = {};
@@ -111,7 +119,7 @@ jQuery(function($) {
 			data: data
 		})
 		.then(function(r) {
-			$('#feedback').html('<p>' + _theme.strings.saved + '</p>');
+			$('#feedback').html('<p>' + _theme.strings.saved + '</p>').show().delay(3000).fadeOut();
 			$('#submit').removeAttr('disabled');
 			fields.forEach(function(item, index) {
 				if (r.hasOwnProperty(item)) {
@@ -125,7 +133,7 @@ jQuery(function($) {
 				message = r.message;
 			}
 			$('#submit').removeAttr('disabled');
-			$('#feedback').html('<p>' + message + '</p>');
+			$('#feedback').html('<p>' + message + '</p>').show().delay(3000).fadeOut();
 		});
 	});
 	var mediaUploader, id;
