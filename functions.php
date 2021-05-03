@@ -8,12 +8,7 @@
 
 defined('ABSPATH') or die('nope');
 
-// theme name/slug
-
 define('_THEME', 'not_wp');
-
-// theme author
-
 define('_AUTHOR', 'nullstep');
 
 // ignore ips
