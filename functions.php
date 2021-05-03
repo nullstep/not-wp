@@ -22,7 +22,14 @@ define('_IGNORE', [
 	// add ips here
 ]);
 
-// theme api
+//     ▄████████     ▄███████▄   ▄█   
+//    ███    ███    ███    ███  ███   
+//    ███    ███    ███    ███  ███▌  
+//    ███    ███    ███    ███  ███▌  
+//  ▀███████████  ▀█████████▀   ███▌  
+//    ███    ███    ███         ███   
+//    ███    ███    ███         ███   
+//    ███    █▀    ▄████▀       █▀    
 
 define('_ARGS_NOT_WP', [
 	'container_class' => [
@@ -312,7 +319,14 @@ class _themeMenu {
 	}
 }
 
-// theme updater
+//  ███    █▄      ▄███████▄  ████████▄      ▄████████      ███         ▄████████     ▄████████  
+//  ███    ███    ███    ███  ███   ▀███    ███    ███  ▀█████████▄    ███    ███    ███    ███  
+//  ███    ███    ███    ███  ███    ███    ███    ███     ▀███▀▀██    ███    █▀     ███    ███  
+//  ███    ███    ███    ███  ███    ███    ███    ███      ███   ▀   ▄███▄▄▄       ▄███▄▄▄▄██▀  
+//  ███    ███  ▀█████████▀   ███    ███  ▀███████████      ███      ▀▀███▀▀▀      ▀▀███▀▀▀▀▀    
+//  ███    ███    ███         ███    ███    ███    ███      ███        ███    █▄   ▀███████████  
+//  ███    ███    ███         ███   ▄███    ███    ███      ███        ███    ███    ███    ███  
+//  ████████▀    ▄████▀       ████████▀     ███    █▀      ▄████▀      ██████████    ███    ███  
 
 class _themeUpdater {
 	protected $theme = _THEME;
@@ -439,7 +453,14 @@ class _themeUpdater {
 	}
 }
 
-// widget class
+//   ▄█     █▄    ▄█   ████████▄      ▄██████▄      ▄████████      ███      
+//  ███     ███  ███   ███   ▀███    ███    ███    ███    ███  ▀█████████▄  
+//  ███     ███  ███▌  ███    ███    ███    █▀     ███    █▀      ▀███▀▀██  
+//  ███     ███  ███▌  ███    ███   ▄███          ▄███▄▄▄          ███   ▀  
+//  ███     ███  ███▌  ███    ███  ▀▀███ ████▄   ▀▀███▀▀▀          ███      
+//  ███     ███  ███   ███    ███    ███    ███    ███    █▄       ███      
+//  ███ ▄█▄ ███  ███   ███   ▄███    ███    ███    ███    ███      ███      
+//   ▀███▀███▀   █▀    ████████▀     ████████▀     ██████████     ▄████▀    
 
 class _themeWidget extends WP_Widget {
 	protected $registered = false;
@@ -628,6 +649,15 @@ class _themeWidget extends WP_Widget {
 	}
 }
 
+//     ▄████████  ███    █▄   ███▄▄▄▄▄     ▄████████     ▄████████  
+//    ███    ███  ███    ███  ███▀▀▀▀██▄  ███    ███    ███    ███  
+//    ███    █▀   ███    ███  ███    ███  ███    █▀     ███    █▀   
+//   ▄███▄▄▄      ███    ███  ███    ███  ███           ███         
+//  ▀▀███▀▀▀      ███    ███  ███    ███  ███         ▀███████████  
+//    ███         ███    ███  ███    ███  ███    █▄            ███  
+//    ███         ███    ███  ███    ███  ███    ███     ▄█    ███  
+//    ███         ████████▀    ▀█    █▀   ████████▀    ▄████████▀   
+
 // get css colours
 
 function getcolours($echo = true) {
@@ -798,52 +828,6 @@ function save_post_metadata($post_id) {
 	update_post_meta($post_id, 'column_class', $data);
 }
 
-// fix content urls/classes etc
-
-function fix_content($content) {
-	libxml_use_internal_errors(true);
-	$dom = new DOMDocument;
-	$dom->strictErrorChecking = false;
-	$dom->loadHTML(mb_convert_encoding($content, 'HTML-ENTITIES', 'UTF-8'), LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
-	foreach ($dom->getElementsByTagName('img') as $img) {
-		$file = basename(parse_url($img->getAttribute('src'), PHP_URL_PATH));
-		$path = substr($img->getAttribute('src'), 0, (0 - strlen($file)));
-		$img->setAttribute('src', '/uploads/' . $file);
-		$set = str_replace($path, '/uploads/', $img->getAttribute('srcset'));
-		$img->setAttribute('srcset', $set);
-	}
-	foreach ($dom->getElementsByTagName('figure') as $fig) {
-		$fig->removeAttribute('class');
-	}
-	foreach ($dom->getElementsByTagName('pre') as $pre) {
-		$pre->removeAttribute('class');
-	}
-	$xpath = new DOMXPath($dom);
-	for ($els = $xpath->query('//comment()'), $i = $els->length - 1; $i >= 0; $i--) {
-		$els->item($i)->parentNode->removeChild($els->item($i));
-	}
-	return "\t\t\t\t\t\t" . str_replace("\n", '', $dom->saveHTML());
-}
-
-// remove crap
-
-function remove_category_rel_from_category_list($thelist) {
-	return str_replace('rel="category tag"', 'rel="tag"', $thelist);
-}
-
-function remove_recent_comments_style() {
-	global $wp_widget_factory;
-	remove_action('wp_head', [
-		$wp_widget_factory->widgets['WP_Widget_Recent_Comments'],
-		'recent_comments_style'
-	]);
-}
-
-function remove_crap() {
-	wp_dequeue_style('wp-block-library');
-	wp_deregister_script('jquery');
-}
-
 // pagination
 
 function pagination() {
@@ -904,6 +888,24 @@ register_nav_menus([
 	'primary' => 'Primary Menu'
 ]);
 
+//     ▄████████     ▄█    █▄      ▄██████▄      ▄████████      ███      
+//    ███    ███    ███    ███    ███    ███    ███    ███  ▀█████████▄  
+//    ███    █▀     ███    ███    ███    ███    ███    ███     ▀███▀▀██  
+//    ███          ▄███▄▄▄▄███▄▄  ███    ███   ▄███▄▄▄▄██▀      ███   ▀  
+//  ▀███████████  ▀▀███▀▀▀▀███▀   ███    ███  ▀▀███▀▀▀▀▀        ███      
+//           ███    ███    ███    ███    ███  ▀███████████      ███      
+//     ▄█    ███    ███    ███    ███    ███    ███    ███      ███      
+//   ▄████████▀     ███    █▀      ▀██████▀     ███    ███     ▄████▀    
+
+//   ▄████████   ▄██████▄   ████████▄      ▄████████     ▄████████  
+//  ███    ███  ███    ███  ███   ▀███    ███    ███    ███    ███  
+//  ███    █▀   ███    ███  ███    ███    ███    █▀     ███    █▀   
+//  ███         ███    ███  ███    ███   ▄███▄▄▄        ███         
+//  ███         ███    ███  ███    ███  ▀▀███▀▀▀      ▀███████████  
+//  ███    █▄   ███    ███  ███    ███    ███    █▄            ███  
+//  ███    ███  ███    ███  ███   ▄███    ███    ███     ▄█    ███  
+//  ████████▀    ▀██████▀   ████████▀     ██████████   ▄████████▀   
+
 // logo shortcodes
 
 function logo_normal_shortcode($atts = [], $content = null, $tag = '') {
@@ -958,6 +960,42 @@ function children_shortcode() {
 		}
 	}
 	return ob_get_clean();
+}
+
+//     ▄████████   ▄█   ▀████    ▐████▀     ▄████████     ▄████████  
+//    ███    ███  ███     ███▌   ████▀     ███    ███    ███    ███  
+//    ███    █▀   ███▌     ███  ▐███       ███    █▀     ███    █▀   
+//   ▄███▄▄▄      ███▌     ▀███▄███▀      ▄███▄▄▄        ███         
+//  ▀▀███▀▀▀      ███▌     ████▀██▄      ▀▀███▀▀▀      ▀███████████  
+//    ███         ███     ▐███  ▀███       ███    █▄            ███  
+//    ███         ███    ▄███     ███▄     ███    ███     ▄█    ███  
+//    ███         █▀    ████       ███▄    ██████████   ▄████████▀   
+
+// fix content urls/classes etc
+
+function fix_content($content) {
+	libxml_use_internal_errors(true);
+	$dom = new DOMDocument;
+	$dom->strictErrorChecking = false;
+	$dom->loadHTML(mb_convert_encoding($content, 'HTML-ENTITIES', 'UTF-8'), LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+	foreach ($dom->getElementsByTagName('img') as $img) {
+		$file = basename(parse_url($img->getAttribute('src'), PHP_URL_PATH));
+		$path = substr($img->getAttribute('src'), 0, (0 - strlen($file)));
+		$img->setAttribute('src', '/uploads/' . $file);
+		$set = str_replace($path, '/uploads/', $img->getAttribute('srcset'));
+		$img->setAttribute('srcset', $set);
+	}
+	foreach ($dom->getElementsByTagName('figure') as $fig) {
+		$fig->removeAttribute('class');
+	}
+	foreach ($dom->getElementsByTagName('pre') as $pre) {
+		$pre->removeAttribute('class');
+	}
+	$xpath = new DOMXPath($dom);
+	for ($els = $xpath->query('//comment()'), $i = $els->length - 1; $i >= 0; $i--) {
+		$els->item($i)->parentNode->removeChild($els->item($i));
+	}
+	return "\t\t\t\t\t\t" . str_replace("\n", '', $dom->saveHTML());
 }
 
 // no category base
@@ -1018,6 +1056,25 @@ function no_category_base_request($query_vars) {
 	return $query_vars;
 }
 
+// remove crap
+
+function remove_category_rel_from_category_list($thelist) {
+	return str_replace('rel="category tag"', 'rel="tag"', $thelist);
+}
+
+function remove_recent_comments_style() {
+	global $wp_widget_factory;
+	remove_action('wp_head', [
+		$wp_widget_factory->widgets['WP_Widget_Recent_Comments'],
+		'recent_comments_style'
+	]);
+}
+
+function remove_crap() {
+	wp_dequeue_style('wp-block-library');
+	wp_deregister_script('jquery');
+}
+
 // clean up nav items
 
 function nav_attributes_filter($var) {
@@ -1065,15 +1122,24 @@ function set_wp_options() {
 	update_option('show_avatars', 0);
 }
 
-// theme updater
-
-$updater = new _themeUpdater();
-
 // login screen
 
 function not_wp_login_logo() {
 	echo '<style>h1 a { background-image:url(' . get_template_directory_uri() . '/not_wp_dark.svg) !important; width: 300px !important; background-size: auto auto !important; }</style>';
 }
+
+//   ▄█   ███▄▄▄▄▄     ▄█       ███      
+//  ███   ███▀▀▀▀██▄  ███   ▀█████████▄  
+//  ███▌  ███    ███  ███▌     ▀███▀▀██  
+//  ███▌  ███    ███  ███▌      ███   ▀  
+//  ███▌  ███    ███  ███▌      ███      
+//  ███   ███    ███  ███       ███      
+//  ███   ███    ███  ███       ███      
+//  █▀     ▀█    █▀   █▀       ▄████▀    
+
+// theme updater
+
+$updater = new _themeUpdater();
 
 // actions
 
@@ -1171,6 +1237,15 @@ add_action('rest_api_init', function() {
 	$api = new _themeAPI();
 	$api->add_routes();
 });
+
+//     ▄█    █▄        ▄████████   ▄█           ▄███████▄  
+//    ███    ███      ███    ███  ███          ███    ███  
+//    ███    ███      ███    █▀   ███          ███    ███  
+//   ▄███▄▄▄▄███▄▄   ▄███▄▄▄      ███          ███    ███  
+//  ▀▀███▀▀▀▀███▀   ▀▀███▀▀▀      ███        ▀█████████▀   
+//    ███    ███      ███    █▄   ███          ███         
+//    ███    ███      ███    ███  ███▌    ▄    ███         
+//    ███    █▀       ██████████  █████▄▄██   ▄████▀       
 
 // navwalker class - https://github.com/wp-bootstrap/wp-bootstrap-navwalker
 
