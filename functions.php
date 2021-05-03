@@ -674,15 +674,29 @@ function getcolours($echo = true) {
 	}
 }
 
+// get favicon
+
+function getfavicon($echo = true) {
+	$setting = _themeSettings::get_settings()['favicon_image'];
+	$favicon = ($setting != '') ? '/uploads/' . $setting : '/img/favicon.png';
+	if ($echo) {
+		echo $favicon;
+	}
+	else {
+		return $favicon;
+	}
+}
+
 // get setting
 
 function getvalue($key, $newline = false, $echo = true) {
 	$n = ($newline) ? "\n" : '';
+	$setting = _themeSettings::get_settings()[$key] . $n;
 	if ($echo) {
-		echo _themeSettings::get_settings()[$key] . $n;
+		echo $setting;
 	}
 	else {
-		return _themeSettings::get_settings()[$key] . $n;
+		return $setting;
 	}
 }
 
