@@ -3,7 +3,14 @@
 				<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#nav-collapse" aria-controls="nav-collapse" aria-expanded="false" aria-label="Toggle Navigation">
 					<span class="navbar-toggler-icon"></span>
 				</button>
-				<a class="navbar-brand" href="<?php echo home_url(); ?>"><img id="nav-logo" src="/uploads/<?php getvalue('logo_image'); ?>"></a>
+<?php
+	$nav_logo = getvalue('nav_logo', false, false);
+	if ($nav_logo != 'none') {
+?>
+				<a class="navbar-brand" href="<?php echo home_url(); ?>"><img id="nav-logo" src="/uploads/<?php getvalue('logo_image_' . $nav_logo); ?>"></a>
+<?php
+	}
+?>
 				<?php wp_nav_menu([
 					'theme_location' => 'primary',
 					'item_spacing' => 'discard',

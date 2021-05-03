@@ -33,9 +33,17 @@ define('_ARGS_NOT_WP', [
 		'type' => 'string',
 		'default' => ''
 	],
-	'logo_image' => [
+	'logo_image_normal' => [
 		'type' => 'string',
 		'default' => ''
+	],
+	'logo_image_contrast' => [
+		'type' => 'string',
+		'default' => ''
+	],
+	'nav_logo' => [
+		'type' => 'string',
+		'default' => 'normal'
 	],
 	'primary_colour' => [
 		'type' => 'string',
@@ -237,11 +245,28 @@ class _themeMenu {
 							<input data-id="favicon_image" type="button" class="button-primary choose-file-button" value="Select...">
 						</div>
 						<div class="form-block">
-							<label for="logo_image">
-								Logo Image:
+							<label for="logo_image_normal">
+								Logo Image (normal):
 							</label>
-							<input id="logo_image" type="text" name="logo_image">
-							<input data-id="logo_image" type="button" class="button-primary choose-file-button" value="Select...">
+							<input id="logo_image_normal" type="text" name="logo_image_normal">
+							<input data-id="logo_image_normal" type="button" class="button-primary choose-file-button" value="Select...">
+						</div>
+						<div class="form-block">
+							<label for="logo_image_contrast">
+								Logo Image (contrast):
+							</label>
+							<input id="logo_image_contrast" type="text" name="logo_image_contrast">
+							<input data-id="logo_image_contrast" type="button" class="button-primary choose-file-button" value="Select...">
+						</div>
+						<div class="form-block">
+							<label for="nav_logo">
+								Nav Logo:
+							</label>
+							<select id="nav_logo" name="nav_logo">
+								<option value="normal">Normal</option>
+								<option value="contrast">Contrast</option>
+								<option value="none">None</option>
+							</select>					
 						</div>
 						<div class="form-block-ns">
 							<label for="primary_colour">
@@ -282,11 +307,6 @@ class _themeMenu {
 				<div id="feedback">
 				</div>
 			</form>
-			<script>
-				jQuery(function($){
-
-				});
-			</script>
 		</div>
 <?php
 	}
@@ -884,10 +904,14 @@ register_nav_menus([
 	'primary' => 'Primary Menu'
 ]);
 
-// logo shortcode
+// logo shortcodes
 
-function logo_shortcode($atts = [], $content = null, $tag = '') {
-	return '<img src="/uploads/' . _themeSettings::get_settings()['logo_image'] . '" class="logo ' . $content .'">';
+function logo_normal_shortcode($atts = [], $content = null, $tag = '') {
+	return '<img src="/uploads/' . _themeSettings::get_settings()['logo_image_normal'] . '" class="logo ' . $content .'">';
+}
+
+function logo_contrast_shortcode($atts = [], $content = null, $tag = '') {
+	return '<img src="/uploads/' . _themeSettings::get_settings()['logo_image_contrast'] . '" class="logo ' . $content .'">';
 }
 
 // include file shortcode
@@ -1120,7 +1144,6 @@ add_filter('request', 'no_category_base_request');
 add_filter('nav_menu_css_class', 'nav_attributes_filter', 100, 1);
 add_filter('nav_menu_item_id', 'nav_attributes_filter', 100, 1);
 add_filter('page_css_class', 'nav_attributes_filter', 100, 1);
-//add_filter('customize_value_custom_css', 'custom_css', 10, 2 );
 
 remove_filter('oembed_dataparse', 'wp_filter_oembed_result', 10);
 remove_filter('the_excerpt', 'wpautop');
@@ -1128,7 +1151,8 @@ remove_filter('wp_robots', 'wp_robots_max_image_preview_large');
 
 // shortcodes
 
-add_shortcode('logo', 'logo_shortcode');
+add_shortcode('logo-normal', 'logo_normal_shortcode');
+add_shortcode('logo-contrast', 'logo_contrast_shortcode');
 add_shortcode('inc', 'inc_shortcode');
 add_shortcode('video', 'video_shortcode');
 add_shortcode('children', 'children_shortcode');

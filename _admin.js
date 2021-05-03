@@ -4,7 +4,9 @@ jQuery(function($) {
 	const fields = [
 		'container_class',
 		'favicon_image',
-		'logo_image',
+		'logo_image_normal',
+		'logo_image_contrast',
+		'nav_logo',
 		'primary_colour',
 		'secondary_colour',
 		'tertiary_colour',
