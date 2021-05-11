@@ -1,5 +1,9 @@
 /* theme admin css */
 
+#wpwrap {
+	background: url(logo_light.svg) center center no-repeat !important;
+}
+
 #not_wp-form .tab-content {
 	padding: 15px 0 0 15px;
 }

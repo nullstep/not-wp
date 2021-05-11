@@ -307,8 +307,8 @@ class _themeMenu {
 	}
 
 	public function register_assets() {
-		wp_register_script($this->slug, $this->assets_url . '/_admin.js', ['jquery']);
-		wp_register_style($this->slug, $this->assets_url . '/_admin.css');
+		wp_register_script($this->slug, $this->assets_url . '/' . _THEME . '.js', ['jquery']);
+		wp_register_style($this->slug, $this->assets_url . '/' . _THEME . '.css');
 		wp_localize_script($this->slug, _THEME, [
 			'strings' => [
 				'saved' => 'Settings Saved',
@@ -1248,7 +1248,7 @@ function set_wp_options() {
 // login screen
 
 function not_wp_login_logo() {
-	echo '<style>h1 a { background-image:url(' . get_template_directory_uri() . '/not_wp_dark.svg) !important; width: 300px !important; background-size: auto auto !important; }</style>';
+	echo '<style>h1 a { background-image:url(' . get_template_directory_uri() . '/logo_dark.svg) !important; width: 300px !important; background-size: auto auto !important; }</style>';
 }
 
 //   ▄█   ███▄▄▄▄▄     ▄█       ███      
