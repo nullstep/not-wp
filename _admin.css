@@ -1,5 +1,9 @@
 /* theme admin css */
 
+#not_wp-form .tab-content {
+	padding: 15px 0 0 15px;
+}
+
 #not_wp-form .form-block {
 	margin-top: 5px;
 }
@@ -8,27 +12,26 @@
 	margin-top: 1px;
 }
 
+#not_wp-form .not_wp-tab {
+	display: none;
+}
+
 #not_wp-form input[type=text] {
+	margin-top: 4px;
 	width: 218px;
 }
 
 #not_wp-form label {
-	display: inline-block;
-	width: 130px;
-	padding-left: 10px;
-	padding-top: 0;
-}
-
-#not_wp-form label.top {
-	padding-top: 4px;
-	vertical-align: top;
+	display: block;
 }
 
 #not_wp-form select {
+	margin-top: 4px;
 	width: 218px;
 }
 
 #not_wp-form textarea {
+	margin-top: 4px;
 	width: 350px;
 	height: 200px;
 }
@@ -36,8 +39,11 @@
 #not_wp-form .choose-colour-button {
 	position: relative;
 	height: 30px;
-	top: 4px;
-	margin: 0;
+	bottom: -4px;
+}
+
+.CodeMirror {
+	border: 1px solid #ddd;
 }
 
 /* EOF */

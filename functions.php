@@ -13,18 +13,9 @@ define('_AUTHOR', 'nullstep');
 
 // ignore ips
 
-define('_IGNORE', [
-	// add ips here
+define('_IGNORE_NOT_WP', [
+	'127.0.0.1'
 ]);
-
-//     ▄████████     ▄███████▄   ▄█   
-//    ███    ███    ███    ███  ███   
-//    ███    ███    ███    ███  ███▌  
-//    ███    ███    ███    ███  ███▌  
-//  ▀███████████  ▀█████████▀   ███▌  
-//    ███    ███    ███         ███   
-//    ███    ███    ███         ███   
-//    ███    █▀    ▄████▀       █▀    
 
 define('_ARGS_NOT_WP', [
 	'container_class' => [
@@ -59,6 +50,22 @@ define('_ARGS_NOT_WP', [
 		'type' => 'string',
 		'default' => '#333333'
 	],
+	'show_page_titles' => [
+		'type' => 'string',
+		'default' => 'h2'
+	],
+	'sidebar_on_posts' => [
+		'type' => 'string',
+		'default' => 'right'
+	],
+	'single_post_name' => [
+		'type' => 'string',
+		'default' => 'Post'
+	],
+	'plural_post_name' => [
+		'type' => 'string',
+		'default' => 'Posts'
+	],
 	'theme_css' => [
 		'type' => 'string',
 		'default' => ''
@@ -76,6 +83,119 @@ define('_ARGS_NOT_WP', [
 		'default' => ''
 	]
 ]);
+
+define('_FORM_NOT_WP', [
+	'settings' => [
+		'label' => 'Settings',
+		'fields' => [
+			'container_class' => [
+				'label' => 'Site Width',
+				'type' => 'select',
+				'values' => [
+					'container-fluid' => 'Full Width',
+					'container' => 'Fixed Width'
+				]
+			],
+			'sidebar_on_posts' => [
+				'label' => 'Blog Sidebar',
+				'type' => 'select',
+				'values' => [
+					'none' => 'None',
+					'left' => 'Left',
+					'right' => 'Right'
+				]
+			],
+			'show_page_titles' => [
+				'label' => 'Show Page Titles',
+				'type' => 'select',
+				'values' => [
+					'none' => 'None',
+					'h1' => 'h1',
+					'h2' => 'h2',
+					'h3' => 'h3'
+				]
+			],
+			'single_post_name' => [
+				'label' => 'Post Name (singular)',
+				'type' => 'input'
+			],
+			'plural_post_name' => [
+				'label' => 'Post Name (plural)',
+				'type' => 'input'
+			]
+		]
+	],
+	'images' => [
+		'label' => 'Images',
+		'fields' => [
+			'favicon_image' => [
+				'label' => 'Site Favicon',
+				'type' => 'file'
+			],
+			'logo_image_normal' => [
+				'label' => 'Logo Image (normal)',
+				'type' => 'file'
+			],
+			'logo_image_contrast' => [
+				'label' => 'Logo Image (contrast)',
+				'type' => 'file'
+			],
+			'nav_logo' => [
+				'label' => 'Navbar Logo',
+				'type' => 'select',
+				'values' => [
+					'none' => 'None',
+					'nornal' => 'Normal',
+					'contrast' => 'Contrast'
+				]
+			]
+		]
+	],
+	'colours' => [
+		'label' => 'Colours',
+		'fields' => [
+			'primary_colour' => [
+				'label' => 'Primary Colour',
+				'type' => 'colour'
+			],
+			'secondary_colour' => [
+				'label' => 'Secondary Colour',
+				'type' => 'colour'
+			],
+			'tertiary_colour' => [
+				'label' => 'Tertiary Colour',
+				'type' => 'colour'
+			]
+		]
+	],
+	'css' => [
+		'label' => 'CSS',
+		'fields' => [
+			'theme_css' => [
+				'label' => 'Theme Styles',
+				'type' => 'code'
+			]
+		]
+	],
+	'js' => [
+		'label' => 'JS',
+		'fields' => [
+			'theme_js' => [
+				'label' => 'Theme Scripts',
+				'type' => 'code'
+			]
+		]
+	]
+]);
+
+//     ▄████████     ▄███████▄   ▄█   
+//    ███    ███    ███    ███  ███   
+//    ███    ███    ███    ███  ███▌  
+//    ███    ███    ███    ███  ███▌  
+//  ▀███████████  ▀█████████▀   ███▌  
+//    ███    ███    ███         ███   
+//    ███    ███    ███         ███   
+//    ███    █▀    ▄████▀       █▀   
 
 class _themeAPI {
 	public function add_routes() {
@@ -212,105 +332,86 @@ class _themeMenu {
 	public function render_admin() {
 		wp_enqueue_media();
 		$this->enqueue_assets();
-?>
-		<style>
-			.not_wp-tab {
-				display: none;
-				background: url(<?php echo $this->assets_url . '/not_wp.svg'; ?>) no-repeat;
-			}
-		</style>
-		<div class="wrap">
-			<h1>not_wp</h1>
-			<p style="max-width:500px">Configure your theme settings...</p>
-			<form id="not_wp-form" method="post">
-				<nav id="not_wp-nav" class="nav-tab-wrapper">
-					<a href="#not_wp-settings" class="nav-tab nav-tab-active">Settings</a>
-					<a href="#not_wp-css" class="nav-tab">CSS</a>
-					<a href="#not_wp-js" class="nav-tab">JS</a>
-				</nav>
-				<div class="tab-content">
-					<div id=not_wp-settings class="not_wp-tab">
-						<div class="form-block">
-							<label for="container_class">
-								Container Width:
-							</label>
-							<select id="container_class" name="container_class">
-								<option value="container-fluid">Full Screen</option>
-								<option value="container">Boxed</option>
-							</select>					
-						</div>
-						<div class="form-block">
-							<label for="favicon_image">
-								Favicon Image:
-							</label>
-							<input id="favicon_image" type="text" name="favicon_image">
-							<input data-id="favicon_image" type="button" class="button-primary choose-file-button" value="Select...">
-						</div>
-						<div class="form-block">
-							<label for="logo_image_normal">
-								Logo Image (normal):
-							</label>
-							<input id="logo_image_normal" type="text" name="logo_image_normal">
-							<input data-id="logo_image_normal" type="button" class="button-primary choose-file-button" value="Select...">
-						</div>
-						<div class="form-block">
-							<label for="logo_image_contrast">
-								Logo Image (contrast):
-							</label>
-							<input id="logo_image_contrast" type="text" name="logo_image_contrast">
-							<input data-id="logo_image_contrast" type="button" class="button-primary choose-file-button" value="Select...">
-						</div>
-						<div class="form-block">
-							<label for="nav_logo">
-								Nav Logo:
-							</label>
-							<select id="nav_logo" name="nav_logo">
-								<option value="normal">Normal</option>
-								<option value="contrast">Contrast</option>
-								<option value="none">None</option>
-							</select>					
-						</div>
-						<div class="form-block-ns">
-							<label for="primary_colour">
-								Primary Colour:
-							</label>
-							<input id="primary_colour" type="text" name="primary_colour">
-							<input data-id="primary_colour" type="color" class="choose-colour-button" value="#000000">
-						</div>
-						<div class="form-block-ns">
-							<label for="secondary_colour">
-								Secondary Colour:
-							</label>
-							<input id="secondary_colour" type="text" name="secondary_colour">
-							<input data-id="secondary_colour" type="color" class="choose-colour-button" value="#000000">
-						</div>
-						<div class="form-block-ns">
-							<label for="tertiary_colour">
-								Tertiary Colour:
-							</label>
-							<input id="tertiary_colour" type="text" name="tertiary_colour">
-							<input data-id="tertiary_colour" type="color" class="choose-colour-button" value="#000000">
-						</div>
-					</div>
-					<div id="not_wp-css" class="not_wp-tab">
-						<div class="form-block">
-							<textarea id="theme_css" class="tabs" name="theme_css"></textarea>
-						</div>
-					</div>
-					<div id="not_wp-js" class="not_wp-tab">
-						<div class="form-block">
-							<textarea id="theme_js" class="tabs" name="theme_js"></textarea>
-						</div> 
-					</div>
-				</div>
-				<div>
-					<?php submit_button(); ?>
-				</div>
-				<div id="feedback">
-				</div>
-			</form>
-		</div>
-<?php
+
+		$name = _THEME;
+		$form = _FORM_NOT_WP;
+
+		// build form
+
+		echo '<div id="' . $name . '-wrap" class="wrap">';
+			echo '<h1>' . $name . '</h1>';
+			echo '<p>Configure your ' . $name . ' settings...</p>';
+			echo '<form id="' . $name . '-form" method="post">';
+				echo '<nav id="' . $name . '-nav" class="nav-tab-wrapper">';
+				foreach ($form as $tid => $tab) {
+					echo '<a href="#' . $name . '-' . $tid . '" class="nav-tab">' . $tab['label'] . '</a>';
+				}
+				echo '</nav>';
+				echo '<div class="tab-content">';
+				foreach ($form as $tid => $tab) {
+					echo '<div id="' . $name . '-' . $tid . '" class="' . $name . '-tab">';
+					foreach ($tab['fields'] as $fid => $field) {
+						echo '<div class="form-block">';
+						switch ($field['type']) {
+							case 'input': {
+								echo '<label for="' . $fid . '">';
+									echo $field['label'] . ':';
+								echo '</label>';
+								echo '<input id="' . $fid . '" type="text" name="' . $fid . '">';
+								break;
+							}
+							case 'select': {
+								echo '<label for="' . $fid . '">';
+									echo $field['label'] . ':';
+								echo '</label>';
+								echo '<select id="' . $fid . '" name="' . $fid . '">';
+									foreach ($field['values'] as $value => $label) {
+										echo '<option value="' . $value . '">' . $label . '</option>';
+									}
+								echo '</select>';
+								break;
+							}
+							case 'text': {
+								echo '<label for="' . $fid . '">';
+									echo $field['label'] . ':';
+								echo '</label>';
+								echo '<textarea id="' . $fid . '" class="tabs" name="' . $fid . '"></textarea>';
+								break;
+							}
+							case 'file': {
+								echo '<label for="' . $fid . '">';
+									echo $field['label'] . ':';
+								echo '</label>';
+								echo '<input id="' . $fid . '" type="text" name="' . $fid . '">';
+								echo '<input data-id="' . $fid . '" type="button" class="button-primary choose-file-button" value="Select...">';
+								break;
+							}
+							case 'colour': {
+								echo '<label for="' . $fid . '">';
+									echo $field['label'] . ':';
+								echo '</label>';
+								echo '<input id="' . $fid . '" type="text" name="' . $fid . '">';
+								echo '<input data-id="' . $fid . '" type="color" class="choose-colour-button" value="#000000">';
+								break;
+							}
+							case 'code': {
+								echo '<label for="' . $fid . '">';
+									echo $field['label'] . ':';
+								echo '</label>';
+								echo '<textarea id="' . $fid . '" class="code" name="' . $fid . '"></textarea>';
+								break;
+							}
+						}
+						echo '</div>';
+					}
+					echo '</div>';
+				}
+				echo '<div>';
+					submit_button();
+				echo '</div>';
+				echo '<div id="' . $name . '-feedback"></div>';
+			echo '</form>';
+		echo '</div>';
 	}
 }
 
@@ -657,9 +758,9 @@ class _themeWidget extends WP_Widget {
 
 function getcolours($echo = true) {
 	$css = ':root{' .
-		'--primary-colour:' . _themeSettings::get_settings()['primary_colour'] . ';' .
-		'--secondary-colour:' . _themeSettings::get_settings()['secondary_colour'] . ';' .
-		'--tertiary-colour:' . _themeSettings::get_settings()['tertiary_colour'] . ';' .
+		'--primary-colour:' . _NWP['primary_colour'] . ';' .
+		'--secondary-colour:' . _NWP['secondary_colour'] . ';' .
+		'--tertiary-colour:' . _NWP['tertiary_colour'] . ';' .
 	'}';
 	if ($echo) {
 		echo $css;
@@ -672,7 +773,7 @@ function getcolours($echo = true) {
 // get favicon
 
 function getfavicon($echo = true) {
-	$setting = _themeSettings::get_settings()['favicon_image'];
+	$setting = _NWP['favicon_image'];
 	$favicon = ($setting != '') ? '/uploads/' . $setting : '/img/favicon.png';
 	if ($echo) {
 		echo $favicon;
@@ -686,7 +787,7 @@ function getfavicon($echo = true) {
 
 function getvalue($key, $newline = false, $echo = true) {
 	$n = ($newline) ? "\n" : '';
-	$setting = _themeSettings::get_settings()[$key] . $n;
+	$setting = _NWP[$key] . $n;
 	if ($echo) {
 		echo $setting;
 	}
@@ -710,7 +811,7 @@ function getviews($postID) {
 
 function setviews($postID) {
 	$ip = $_SERVER['REMOTE_ADDR'];
-	if (!in_array($ip, _IGNORE)) {
+	if (!in_array($ip, _IGNORE_NOT_WP)) {
 		$count_key = 'post_views_count';
 		$count = get_post_meta($postID, $count_key, true);
 		if ($count == '') {
@@ -918,11 +1019,11 @@ register_nav_menus([
 // logo shortcodes
 
 function logo_normal_shortcode($atts = [], $content = null, $tag = '') {
-	return '<img src="/uploads/' . _themeSettings::get_settings()['logo_image_normal'] . '" class="logo ' . $content .'">';
+	return '<img src="/uploads/' . _NWP['logo_image_normal'] . '" class="logo ' . $content .'">';
 }
 
 function logo_contrast_shortcode($atts = [], $content = null, $tag = '') {
-	return '<img src="/uploads/' . _themeSettings::get_settings()['logo_image_contrast'] . '" class="logo ' . $content .'">';
+	return '<img src="/uploads/' . _NWP['logo_image_contrast'] . '" class="logo ' . $content .'">';
 }
 
 // include file shortcode
@@ -1016,7 +1117,6 @@ function no_category_base_refresh_rules() {
 
 function no_category_base_permastruct() {
 	global $wp_rewrite;
-	global $wp_version;
 	$wp_rewrite->extra_permastructs['category']['struct'] = '%category%';
 }
 
@@ -1090,6 +1190,18 @@ function nav_attributes_filter($var) {
 	return is_array($var) ? array_intersect($var, ['current-menu-item', 'nav-item']) : '';
 }
 
+// add admin scripts
+
+function add_scripts($hook) {
+	$screen = get_current_screen();
+
+	if (null === $screen || $screen->base !== 'toplevel_page_' . _THEME . '-theme-menu') {
+		return;
+	}
+
+	wp_enqueue_code_editor(['type' => 'application/x-httpd-php']);
+}
+
 // add widget stuff
 
 function register_widget_stuff() {
@@ -1129,6 +1241,8 @@ function set_wp_options() {
 	update_option('use_smilies', 0);
 	update_option('default_pingback_flag', 0);
 	update_option('show_avatars', 0);
+
+	define('_NWP', _themeSettings::get_settings());
 }
 
 // login screen
@@ -1158,6 +1272,7 @@ add_action('widgets_init', 'remove_recent_comments_style');
 add_action('init', 'pagination');
 add_action('admin_init', 'flush_htaccess');
 add_action('wp_enqueue_scripts', 'remove_crap');
+add_action('admin_enqueue_scripts', 'add_scripts');
 add_action('manage_posts_custom_column', 'posts_custom_column_views', 5, 2);
 add_action('manage_pages_custom_column', 'pages_custom_column_views', 5, 2);
 add_action('created_category', 'no_category_base_refresh_rules');
