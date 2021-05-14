@@ -13,7 +13,9 @@
 			<section class="col-sm-9">
 <?php endif; ?>
 				<h2 class="feed-title"><?php single_cat_title(); ?></h2>
+<?php if (getvalue('show_cat_desc', false, false) == '1'): ?>
 				<?php the_archive_description('<div class="description">', '</div>'); ?>
+<?php endif; ?>
 <?php get_template_part('loop'); ?>
 <?php get_template_part('pagination'); ?>
 

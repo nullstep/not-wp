@@ -74,6 +74,18 @@ define('_ARGS_NOT_WP', [
 		'type' => 'string',
 		'default' => 'Posts'
 	],
+	'show_cat_desc' => [
+		'type' => 'string',
+		'default' => '0'
+	],
+	'show_post_date' => [
+		'type' => 'string',
+		'default' => '0'
+	],
+	'excerpt_length' => [
+		'type' => 'integer',
+		'default' => 20
+	],
 	'theme_css' => [
 		'type' => 'string',
 		'default' => ''
@@ -93,8 +105,8 @@ define('_ARGS_NOT_WP', [
 ]);
 
 define('_FORM_NOT_WP', [
-	'settings' => [
-		'label' => 'Settings',
+	'layout' => [
+		'label' => 'Layout',
 		'fields' => [
 			'container_class' => [
 				'label' => 'Site Width',
@@ -130,7 +142,12 @@ define('_FORM_NOT_WP', [
 					'left' => 'Left',
 					'right' => 'Right'
 				]
-			],
+			]
+		]
+	],
+	'settings' => [
+		'label' => 'Settings',
+		'fields' => [
 			'show_page_titles' => [
 				'label' => 'Show Page Titles',
 				'type' => 'select',
@@ -147,6 +164,26 @@ define('_FORM_NOT_WP', [
 			],
 			'plural_post_name' => [
 				'label' => 'Post Name (plural)',
+				'type' => 'input'
+			],
+			'show_cat_desc' => [
+				'label' => 'Show Category Description',
+				'type' => 'select',
+				'values' => [
+					'0' => 'No',
+					'1' => 'Yes'
+				]
+			],
+			'show_post_date' => [
+				'label' => 'Show Post Date',
+				'type' => 'select',
+				'values' => [
+					'0' => 'No',
+					'1' => 'Yes'
+				]
+			],
+			'excerpt_length' => [
+				'label' => 'Excerpt Word Limit',
 				'type' => 'input'
 			]
 		]
@@ -893,39 +930,6 @@ function media_downloads_save($post, $attachment) {
 	return $post;
 }
 
-// latest posts
-
-function latest_posts($count) {
-	wp_reset_postdata();
-	$loop = 0;
-	$none = true;
-	$post_id = get_queried_object_id();
-	$query = new WP_Query('posts_per_page=' . ($count + 1));
-	echo '<ul class="latest-posts">';
-	while ($query -> have_posts()) : $query -> the_post();
-		if (get_the_ID() != $post_id) {
-			echo '<li><a href="';
-			the_permalink();
-			echo '">';
-			the_title();
-			echo '</a><br><span>';
-			the_time(get_option('date_format'));
-			echo ' - ';
-			the_time();
-			echo '</span></li>';
-			$none = false;
-			$loop++;
-		}
-		if ($loop == 5) {
-			break;
-		}
-	endwhile;
-	if ($none) {
-		echo '<li>No Other Posts :(</li>';
-	}
-	echo '</ul>';
-}
-
 // page column class metadata
 
 function add_post_metadata() {
@@ -979,23 +983,8 @@ function pagination() {
 
 // excerpts
 
-function excerpt($length) {
-	return $length;
-}
-
-function excerpts($length_callback = '', $more_callback = '') {
-	global $post;
-	if (function_exists($length_callback)) {
-		add_filter('excerpt_length', $length_callback);
-	}
-	if (function_exists($more_callback)) {
-		add_filter('excerpt_more', $more_callback);
-	}
-	$output = get_the_excerpt();
-	$output = apply_filters('wptexturize', $output);
-	$output = apply_filters('convert_chars', $output);
-	$output = '<p>' . $output . '</p>';
-	echo $output;
+function set_excerpt_length($length) {
+	return _NWP['excerpt_length'];
 }
 
 // mime types
@@ -1366,6 +1355,7 @@ add_filter('request', 'no_category_base_request');
 add_filter('nav_menu_css_class', 'nav_attributes_filter', 100, 1);
 add_filter('nav_menu_item_id', 'nav_attributes_filter', 100, 1);
 add_filter('page_css_class', 'nav_attributes_filter', 100, 1);
+add_filter('excerpt_length', 'set_excerpt_length', 999);
 
 remove_filter('oembed_dataparse', 'wp_filter_oembed_result', 10);
 remove_filter('the_excerpt', 'wpautop');
@@ -1732,31 +1722,19 @@ function minify_css($input) {
 	if (trim($input) === '') {
 		return $input;
 	}
-	return preg_replace(
-		[
-			// remove comment(s)
+	return preg_replace([
 			'#("(?:[^"\\\]++|\\\.)*+"|\'(?:[^\'\\\\]++|\\\.)*+\')|\/\*(?!\!)(?>.*?\*\/)|^\s*|\s*$#s',
-			// remove unused white-space(s)
 			'#("(?:[^"\\\]++|\\\.)*+"|\'(?:[^\'\\\\]++|\\\.)*+\'|\/\*(?>.*?\*\/))|\s*+;\s*+(})\s*+|\s*+([*$~^|]?+=|[{};,>~]|\s(?![0-9\.])|!important\b)\s*+|([[(:])\s++|\s++([])])|\s++(:)\s*+(?!(?>[^{}"\']++|"(?:[^"\\\]++|\\\.)*+"|\'(?:[^\'\\\\]++|\\\.)*+\')*+{)|^\s++|\s++\z|(\s)\s+#si',
-			// replace `0(cm|em|ex|in|mm|pc|pt|px|vh|vw|%)` with `0`
 			'#(?<=[\s:])(0)(cm|em|ex|in|mm|pc|pt|px|vh|vw|%)#si',
-			// replace `:0 0 0 0` with `:0`
 			'#:(0\s+0|0\s+0\s+0\s+0)(?=[;\}]|\!important)#i',
-			// replace `background-position:0` with `background-position:0 0`
 			'#(background-position):0(?=[;\}])#si',
-			// replace `0.6` with `.6`, but only when preceded by `:`, `,`, `-` or a white-space
 			'#(?<=[\s:,\-])0+\.(\d+)#s',
-			// minify string value
 			'#(\/\*(?>.*?\*\/))|(?<!content\:)([\'"])([a-z_][a-z0-9\-_]*?)\2(?=[\s\{\}\];,])#si',
 			'#(\/\*(?>.*?\*\/))|(\burl\()([\'"])([^\s]+?)\3(\))#si',
-			// minify HEX color code
 			'#(?<=[\s:,\-]\#)([a-f0-6]+)\1([a-f0-6]+)\2([a-f0-6]+)\3#i',
-			// replace `(border|outline):none` with `(border|outline):0`
 			'#(?<=[\{;])(border|outline):none(?=[;\}\!])#',
-			// remove empty selector(s)
 			'#(\/\*(?>.*?\*\/))|(^|[\{\}])(?:[^\s\{\}]+)\{\}#s'
-		],
-		[
+		], [
 			'$1',
 			'$1$2$3$4$5$6$7',
 			'$1',
@@ -1776,20 +1754,13 @@ function minify_js($input) {
 	if (trim($input) === '') {
 		return $input;
 	}
-	return preg_replace(
-		[
-			// remove comment(s)
+	return preg_replace([
 			'#\s*("(?:[^"\\\]++|\\\.)*+"|\'(?:[^\'\\\\]++|\\\.)*+\')\s*|\s*\/\*(?!\!|@cc_on)(?>[\s\S]*?\*\/)\s*|\s*(?<![\:\=])\/\/.*(?=[\n\r]|$)|^\s*|\s*$#',
-			// remove white-space(s) outside the string and regex
 			'#("(?:[^"\\\]++|\\\.)*+"|\'(?:[^\'\\\\]++|\\\.)*+\'|\/\*(?>.*?\*\/)|\/(?!\/)[^\n\r]*?\/(?=[\s.,;]|[gimuy]|$))|\s*([!%&*\(\)\-=+\[\]\{\}|;:,.<>?\/])\s*#s',
-			// remove the last semicolon
 			'#;+\}#',
-			// minify object attribute(s) except JSON attribute(s). From `{'foo':'bar'}` to `{foo:'bar'}`
 			'#([\{,])([\'])(\d+|[a-z_][a-z0-9_]*)\2(?=\:)#i',
-			// --ibid. From `foo['bar']` to `foo.bar`
 			'#([a-z0-9_\)\]])\[([\'"])([a-z_][a-z0-9_]*)\2\]#i'
-		],
-		[
+		], [
 			'$1',
 			'$1$2',
 			'}',

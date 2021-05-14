@@ -19,6 +19,9 @@ jQuery(function($) {
 		'sidebar_on_feeds',
 		'single_post_name',
 		'plural_post_name',
+		'show_cat_desc',
+		'show_post_date',
+		'excerpt_length',
 		'theme_css',
 		'theme_js'
 	];

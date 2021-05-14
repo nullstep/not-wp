@@ -15,11 +15,11 @@
 <?php else: ?>
 				<section class="col-sm-9">
 <?php endif; ?>
+<?php if (have_posts()): while (have_posts()) : the_post(); ?>
+					<article>
 <?php if (getvalue('show_page_titles', false, false) != 'none'): ?>
 					<<?php getvalue('show_page_titles'); ?> class="page-title"><?php the_title(); ?></<?php getvalue('show_page_titles'); ?>>
 <?php endif; ?>
-<?php if (have_posts()): while (have_posts()) : the_post(); ?>
-					<article>
 <?php the_content(); ?>
 
 					</article>
