@@ -208,7 +208,7 @@ define('_FORM_NOT_WP', [
 				'type' => 'select',
 				'values' => [
 					'none' => 'None',
-					'nornal' => 'Normal',
+					'normal' => 'Normal',
 					'contrast' => 'Contrast'
 				]
 			]
