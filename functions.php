@@ -54,7 +54,15 @@ define('_ARGS_NOT_WP', [
 		'type' => 'string',
 		'default' => 'h2'
 	],
+	'sidebar_on_pages' => [
+		'type' => 'string',
+		'default' => 'none'
+	],
 	'sidebar_on_posts' => [
+		'type' => 'string',
+		'default' => 'none'
+	],
+	'sidebar_on_feeds' => [
 		'type' => 'string',
 		'default' => 'right'
 	],
@@ -96,8 +104,26 @@ define('_FORM_NOT_WP', [
 					'container' => 'Fixed Width'
 				]
 			],
+			'sidebar_on_pages' => [
+				'label' => 'Page Sidebar',
+				'type' => 'select',
+				'values' => [
+					'none' => 'None',
+					'left' => 'Left',
+					'right' => 'Right'
+				]
+			],
+			'sidebar_on_feeds' => [
+				'label' => 'Feed Sidebar',
+				'type' => 'select',
+				'values' => [
+					'none' => 'None',
+					'left' => 'Left',
+					'right' => 'Right'
+				]
+			],
 			'sidebar_on_posts' => [
-				'label' => 'Blog Sidebar',
+				'label' => 'Post Sidebar',
 				'type' => 'select',
 				'values' => [
 					'none' => 'None',
@@ -1064,7 +1090,12 @@ function children_shortcode() {
 				$page_title = $child_page->post_title;
 				$page_content = $child_page->post_content;
 				$page_col_class = get_post_meta($page_id, 'column_class', true);
-				?><div class="<?php echo $page_col_class; ?>"><h3><?php echo $page_title; ?></h3><p><?php echo do_shortcode($page_content); ?></p></div><?php
+				$title_tag = getvalue('show_page_titles', false, false);
+				$page_title = '';
+				if ($title_tag != 'none') {
+					$page_title = '<' . $title_tag . ' class="child-title">' . $child_page->post_title . '</' . $title_tag . '>';
+				}
+				?><div class="<?php echo $page_col_class; ?>"><?php echo $page_title; ?><p><?php echo do_shortcode($page_content); ?></p></div><?php
 			}
 			echo '</div>';
 		}
@@ -1211,7 +1242,8 @@ function register_widget_stuff() {
 		'page-top' => 'page top',
 		'page-bottom' => 'page bottom',
 		'footer-top' => 'footer top',
-		'footer-bottom' => 'footer bottom'
+		'footer-bottom' => 'footer bottom',
+		'side-bar' => 'side bar'
 	];
 
 	foreach  ($widgets as $class => $title) {

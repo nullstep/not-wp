@@ -4,8 +4,20 @@
 			<main class="row">
 				<?php if (is_active_sidebar('page-top')) dynamic_sidebar('page-top'); ?>
 
+<?php if (getvalue('sidebar_on_pages', false, false) == 'left'): ?>
+				<section class="col-sm-3">
+<?php if (is_active_sidebar('side-bar')) dynamic_sidebar('side-bar'); ?>
+
+				</section>
+<?php endif; ?>
+<?php if (getvalue('sidebar_on_pages', false, false) == 'none'): ?>
 				<section class="col-sm-12">
-					<h2><?php the_title(); ?></h2>
+<?php else: ?>
+				<section class="col-sm-9">
+<?php endif; ?>
+<?php if (getvalue('show_page_titles', false, false) != 'none'): ?>
+					<<?php getvalue('show_page_titles'); ?> class="page-title"><?php the_title(); ?></<?php getvalue('show_page_titles'); ?>>
+<?php endif; ?>
 <?php if (have_posts()): while (have_posts()) : the_post(); ?>
 					<article>
 <?php the_content(); ?>
@@ -18,6 +30,12 @@
 					</article>
 <?php endif; ?>
 				</section>
+<?php if (getvalue('sidebar_on_pages', false, false) == 'right'): ?>
+				<section class="col-sm-3">
+<?php if (is_active_sidebar('side-bar')) dynamic_sidebar('side-bar'); ?>
+
+				</section>
+<?php endif; ?>
 				<?php if (is_active_sidebar('page-bottom')) dynamic_sidebar('page-bottom'); ?>
 
 			</main>
