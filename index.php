@@ -1,13 +1,9 @@
 <?php get_header(); ?>
 
 		<main class="row">
-			<section class="col-sm-9">
+			<section class="col-sm-12">
 <?php get_template_part('loop'); ?>
 <?php get_template_part('pagination'); ?>
-
-			</section>
-			<section class="col-sm-3">
-<?php get_sidebar(); ?>
 
 			</section>
 		</main>
