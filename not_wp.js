@@ -6,6 +6,7 @@ jQuery(function($) {
 	var theme = not_wp;
 	const fields = [
 		'container_class',
+		'show_topbar',
 		'favicon_image',
 		'logo_image_normal',
 		'logo_image_contrast',
@@ -33,7 +34,8 @@ jQuery(function($) {
 	var cm = [];
 	$('#' + id + '-form .tab-content .' + id + '-tab').eq(0).show();
 	$('#' + id + '-form .nav-tab').eq(0).addClass('nav-tab-active');
-	$('#' + id + '-nav a').on('click', function() {
+	$('#' + id + '-nav a').on('click', function(e) {
+		e.preventDefault();
 		$('#' + id + '-nav a').removeClass('nav-tab-active');
 		var tab = $(this).attr('href');
 		$('.' + id + '-tab').hide();
@@ -57,6 +59,15 @@ jQuery(function($) {
 			if (r.hasOwnProperty(item)) {
 				var i = $('#' + item);
 				i.val(r[item]);
+				if (i.is(':checkbox')) {
+					if (r[item] == 'yes') {
+						i.prop('checked', true);
+						console.log('checkbox yes');
+					}
+					else {
+						console.log('checkbox no');
+					}
+				}
 				if (r[item][0] == '#') {
 					i.parent().find('[data-id="' + item + '"]').val(r[item]);
 				}
@@ -160,7 +171,13 @@ jQuery(function($) {
 		$('#submit').text('...').attr('disabled', 'disabled');
 		var data = {};
 		fields.forEach(function(item, index) {
-			data[item] = $('#' + item).val();
+			var i = $('#' + item);
+			if (i.is(':checkbox')) {
+				data[item] = (i.prop('checked')) ? 'yes' : '';
+			}
+			else {
+				data[item] = i.val();
+			}
 		});
 		$.ajax({
 			method: 'POST',

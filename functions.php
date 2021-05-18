@@ -22,6 +22,10 @@ define('_ARGS_NOT_WP', [
 		'type' => 'string',
 		'default' => 'container'
 	],
+	'show_topbar' => [
+		'type' => 'string',
+		'default' => 'yes'
+	],
 	'favicon_image' => [
 		'type' => 'string',
 		'default' => ''
@@ -76,11 +80,11 @@ define('_ARGS_NOT_WP', [
 	],
 	'show_cat_desc' => [
 		'type' => 'string',
-		'default' => '0'
+		'default' => 'yes'
 	],
 	'show_post_date' => [
 		'type' => 'string',
-		'default' => '0'
+		'default' => 'yes'
 	],
 	'excerpt_length' => [
 		'type' => 'integer',
@@ -107,6 +111,7 @@ define('_ARGS_NOT_WP', [
 define('_FORM_NOT_WP', [
 	'layout' => [
 		'label' => 'Layout',
+		'columns' => 3,
 		'fields' => [
 			'container_class' => [
 				'label' => 'Site Width',
@@ -115,6 +120,10 @@ define('_FORM_NOT_WP', [
 					'container-fluid' => 'Full Width',
 					'container' => 'Fixed Width'
 				]
+			],
+			'show_topbar' => [
+				'label' => 'Show Topbar',
+				'type' => 'check'
 			],
 			'sidebar_on_pages' => [
 				'label' => 'Page Sidebar',
@@ -147,6 +156,7 @@ define('_FORM_NOT_WP', [
 	],
 	'settings' => [
 		'label' => 'Settings',
+		'columns' => 3,
 		'fields' => [
 			'show_page_titles' => [
 				'label' => 'Show Page Titles',
@@ -168,19 +178,11 @@ define('_FORM_NOT_WP', [
 			],
 			'show_cat_desc' => [
 				'label' => 'Show Category Description',
-				'type' => 'select',
-				'values' => [
-					'0' => 'No',
-					'1' => 'Yes'
-				]
+				'type' => 'check'
 			],
 			'show_post_date' => [
 				'label' => 'Show Post Date',
-				'type' => 'select',
-				'values' => [
-					'0' => 'No',
-					'1' => 'Yes'
-				]
+				'type' => 'check'
 			],
 			'excerpt_length' => [
 				'label' => 'Excerpt Word Limit',
@@ -190,6 +192,7 @@ define('_FORM_NOT_WP', [
 	],
 	'images' => [
 		'label' => 'Images',
+		'columns' => 3,
 		'fields' => [
 			'favicon_image' => [
 				'label' => 'Site Favicon',
@@ -216,6 +219,7 @@ define('_FORM_NOT_WP', [
 	],
 	'colours' => [
 		'label' => 'Colours',
+		'columns' => 3,
 		'fields' => [
 			'primary_colour' => [
 				'label' => 'Primary Colour',
@@ -233,6 +237,7 @@ define('_FORM_NOT_WP', [
 	],
 	'css' => [
 		'label' => 'CSS',
+		'columns' => 1,
 		'fields' => [
 			'theme_css' => [
 				'label' => 'Theme Styles',
@@ -242,6 +247,7 @@ define('_FORM_NOT_WP', [
 	],
 	'js' => [
 		'label' => 'JS',
+		'columns' => 1,
 		'fields' => [
 			'theme_js' => [
 				'label' => 'Theme Scripts',
@@ -370,8 +376,9 @@ class _themeMenu {
 	}
 
 	public function register_assets() {
-		wp_register_script($this->slug, $this->assets_url . '/' . _THEME . '.js', ['jquery']);
-		wp_register_style($this->slug, $this->assets_url . '/' . _THEME . '.css');
+		$boo = microtime(false);
+		wp_register_script($this->slug, $this->assets_url . '/' . _THEME . '.js?' . $boo, ['jquery']);
+		wp_register_style($this->slug, $this->assets_url . '/' . _THEME . '.css?' . $boo);
 		wp_localize_script($this->slug, _THEME, [
 			'strings' => [
 				'saved' => 'Settings Saved',
@@ -414,7 +421,7 @@ class _themeMenu {
 				foreach ($form as $tid => $tab) {
 					echo '<div id="' . $name . '-' . $tid . '" class="' . $name . '-tab">';
 					foreach ($tab['fields'] as $fid => $field) {
-						echo '<div class="form-block">';
+						echo '<div class="form-block col-' . $tab['columns'] . '">';
 						switch ($field['type']) {
 							case 'input': {
 								echo '<label for="' . $fid . '">';
@@ -446,7 +453,7 @@ class _themeMenu {
 									echo $field['label'] . ':';
 								echo '</label>';
 								echo '<input id="' . $fid . '" type="text" name="' . $fid . '">';
-								echo '<input data-id="' . $fid . '" type="button" class="button-primary choose-file-button" value="Select...">';
+								echo '<input data-id="' . $fid . '" type="button" class="button-primary choose-file-button" value="...">';
 								break;
 							}
 							case 'colour': {
@@ -464,11 +471,20 @@ class _themeMenu {
 								echo '<textarea id="' . $fid . '" class="code" name="' . $fid . '"></textarea>';
 								break;
 							}
+							case 'check': {
+								echo '<em>' . $field['label'] . ':</em>';
+								echo '<label class="switch">';
+									echo '<input type="checkbox" id="' . $fid . '" name="' . $fid . '" value="yes">';
+									echo '<span class="slider"></span>';
+								echo '</label>';
+								break;
+							}
 						}
 						echo '</div>';
 					}
 					echo '</div>';
 				}
+				echo '</div>';
 				echo '<div>';
 					submit_button();
 				echo '</div>';
@@ -1104,28 +1120,33 @@ function children_shortcode() {
 // fix content urls/classes etc
 
 function fix_content($content) {
-	libxml_use_internal_errors(true);
-	$dom = new DOMDocument;
-	$dom->strictErrorChecking = false;
-	$dom->loadHTML(mb_convert_encoding($content, 'HTML-ENTITIES', 'UTF-8'), LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
-	foreach ($dom->getElementsByTagName('img') as $img) {
-		$file = basename(parse_url($img->getAttribute('src'), PHP_URL_PATH));
-		$path = substr($img->getAttribute('src'), 0, (0 - strlen($file)));
-		$img->setAttribute('src', '/uploads/' . $file);
-		$set = str_replace($path, '/uploads/', $img->getAttribute('srcset'));
-		$img->setAttribute('srcset', $set);
+	if ($content == '') {
+		return '';
 	}
-	foreach ($dom->getElementsByTagName('figure') as $fig) {
-		$fig->removeAttribute('class');
+	else {
+		libxml_use_internal_errors(true);
+		$dom = new DOMDocument;
+		$dom->strictErrorChecking = false;
+		$dom->loadHTML(mb_convert_encoding($content, 'HTML-ENTITIES', 'UTF-8'), LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+		foreach ($dom->getElementsByTagName('img') as $img) {
+			$file = basename(parse_url($img->getAttribute('src'), PHP_URL_PATH));
+			$path = substr($img->getAttribute('src'), 0, (0 - strlen($file)));
+			$img->setAttribute('src', '/uploads/' . $file);
+			$set = str_replace($path, '/uploads/', $img->getAttribute('srcset'));
+			$img->setAttribute('srcset', $set);
+		}
+		foreach ($dom->getElementsByTagName('figure') as $fig) {
+			$fig->removeAttribute('class');
+		}
+		foreach ($dom->getElementsByTagName('pre') as $pre) {
+			$pre->removeAttribute('class');
+		}
+		$xpath = new DOMXPath($dom);
+		for ($els = $xpath->query('//comment()'), $i = $els->length - 1; $i >= 0; $i--) {
+			$els->item($i)->parentNode->removeChild($els->item($i));
+		}
+		return "\t\t\t\t\t\t" . str_replace("\n", '', $dom->saveHTML());
 	}
-	foreach ($dom->getElementsByTagName('pre') as $pre) {
-		$pre->removeAttribute('class');
-	}
-	$xpath = new DOMXPath($dom);
-	for ($els = $xpath->query('//comment()'), $i = $els->length - 1; $i >= 0; $i--) {
-		$els->item($i)->parentNode->removeChild($els->item($i));
-	}
-	return "\t\t\t\t\t\t" . str_replace("\n", '', $dom->saveHTML());
 }
 
 // no category base
@@ -1202,6 +1223,30 @@ function remove_recent_comments_style() {
 function remove_crap() {
 	wp_dequeue_style('wp-block-library');
 	wp_deregister_script('jquery');
+}
+
+// tidy head
+
+function start_wp_head_buffer() {
+	ob_start();
+}
+
+function end_wp_head_buffer() {
+	$content = ob_get_clean();
+	if ($content == '') {
+		echo '';
+	}
+	else {
+		libxml_use_internal_errors(true);
+		$head = new DOMDocument;
+		$head->strictErrorChecking = false;
+		$head->loadHTML(mb_convert_encoding($content, 'HTML-ENTITIES', 'UTF-8'), LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+		foreach ($head->getElementsByTagName('script') as $script) {
+			$script->removeAttribute('id');
+			$script->removeAttribute('type');
+		}
+		echo "\t" . str_replace("\n", '', $head->saveHTML()) . "\n";
+	}
 }
 
 // clean up nav items
@@ -1304,6 +1349,8 @@ add_action('add_meta_boxes', 'add_post_metadata');
 add_action('save_post', 'save_post_metadata');
 add_action('widgets_init', 'register_widget_stuff');
 add_action('login_head', 'not_wp_login_logo');
+add_action('wp_head','start_wp_head_buffer', 0);
+add_action('wp_head','end_wp_head_buffer', PHP_INT_MAX);
 add_action('shutdown', function() {
 	while (@ob_end_flush());
 });
