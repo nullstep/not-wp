@@ -1,7 +1,8 @@
 		</div>
 	</div>
-	<div id="footer-area">
-		<div class="<?php getvalue('container_class'); ?>">
+<?php getsvg('#333'); ?>
+	<div id="footer-area" class="content">
+		<div class="<?php getcontainer(); ?>">
 			<footer class="row">
 				<?php if (is_active_sidebar('footer-top')) dynamic_sidebar('footer-top'); ?>
 
@@ -11,11 +12,10 @@
 			</footer>
 		</div>
 	</div>
-
 	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
 	<script>
-		<?php getvalue('theme_js_minified', true); ?>
+		<?php getjs(); ?>
 	</script>
 </body>
 </html>

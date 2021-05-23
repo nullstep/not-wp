@@ -5,8 +5,14 @@ jQuery(function($) {
 	const id = 'not_wp';
 	var theme = not_wp;
 	const fields = [
+		'seed',
+		'use_seed',
 		'container_class',
-		'show_topbar',
+		'show_infobar',
+		'show_nav',
+		'show_banner',
+		'header_order',
+		'sticky_nav',
 		'favicon_image',
 		'logo_image_normal',
 		'logo_image_contrast',
@@ -14,7 +20,13 @@ jQuery(function($) {
 		'primary_colour',
 		'secondary_colour',
 		'tertiary_colour',
+		'quaternary_colour',
+		'heading_font',
+		'nav_font',
+		'body_font',
+		'mono_font',
 		'show_page_titles',
+		'show_child_titles',
 		'sidebar_on_pages',
 		'sidebar_on_posts',
 		'sidebar_on_feeds',
@@ -28,7 +40,8 @@ jQuery(function($) {
 	];
 	const editors = [
 		'theme_css',
-		'theme_js'
+		'theme_js',
+		id + '-code_code'
 	];
 	// let's go
 	var cm = [];

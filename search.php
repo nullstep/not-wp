@@ -8,8 +8,10 @@
 					echo $n . ' search result' . $s . ' for "' . get_search_query() . '"';
 				?></h2>
 <?php get_template_part('loop'); ?>
-<?php get_template_part('pagination'); ?>
+				<div class="pagination">
+<?php pagination(); ?>
 
+				</div>
 			</section>
 			<section class="col-sm-3">
 <?php get_sidebar(); ?>

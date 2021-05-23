@@ -10,6 +10,10 @@
 	clear: both;
 }
 
+#not_wp-form .col-4 {
+	width: 25%;
+}
+
 #not_wp-form .col-3 {
 	width: 33.333333%;
 }
@@ -127,6 +131,7 @@
 }
 
 @media screen and (max-width: 782px) {
+	#not_wp-form .col-4,
 	#not_wp-form .col-3,
 	#not_wp-form .col-2 {
 		width: 100%;
