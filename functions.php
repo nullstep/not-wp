@@ -15,6 +15,10 @@ define('_IGNORE_NOT_WP', [
 	'127.0.0.1'
 ]);
 
+define('_NOT_WP_OPTIONS', [
+	'thumbnails' => true
+]);
+
 define('_NOT_WP_TAXONOMIES', [
 	'group' => 'code'
 ]);
@@ -1675,6 +1679,12 @@ $updater = new _themeUpdater();
 
 register_nav_menus(_NOT_WP_MENUS);
 
+// thumbnails
+
+if (_NOT_WP_OPTIONS['thumbnails']) {
+	add_theme_support('post-thumbnails');
+}
+
 // actions
 
 add_action('init', [$updater, 'init']);
@@ -1696,9 +1706,7 @@ add_action('delete_category', 'no_category_base_refresh_rules');
 add_action('edited_category', 'no_category_base_refresh_rules');
 add_action('add_meta_boxes', 'add_post_metadata');
 add_action('save_post', 'save_post_metadata');
-
-//add_action('add_meta_boxes', 'd3_add_metaboxes');
-//add_action('save_post', 'd3_save_postdata');
+add_action('after_setup_theme', 'do_setup');
 
 add_action('shutdown', function() {
 	while (@ob_end_flush());
