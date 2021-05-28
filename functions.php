@@ -19,12 +19,12 @@ define('_NOT_WP_OPTIONS', [
 	'thumbnails' => true
 ]);
 
-define('_NOT_WP_TAXONOMIES', [
-	'group' => 'code'
-]);
-
 define('_NOT_WP_POSTTYPES', [
 	'code'
+]);
+
+define('_NOT_WP_TAXONOMIES', [
+	'group' => 'code'
 ]);
 
 define('_NOT_WP_MENUS', [
@@ -505,7 +505,6 @@ class _themeMenu {
 			2
 		);
 
-		// add taxonomies menus
 		foreach (_NOT_WP_TAXONOMIES as $type => $child) {
 			add_submenu_page(
 				$this->slug,
@@ -516,7 +515,6 @@ class _themeMenu {
 			);
 		}
 
-		// add posts menus
 		foreach (_NOT_WP_POSTTYPES as $type) {
 			add_submenu_page(
 				$this->slug,
@@ -1000,14 +998,14 @@ class _themeWidget extends WP_Widget {
 	}
 }
 
-//     ▄████████  ███    █▄   ███▄▄▄▄▄     ▄████████     ▄████████  
-//    ███    ███  ███    ███  ███▀▀▀▀██▄  ███    ███    ███    ███  
-//    ███    █▀   ███    ███  ███    ███  ███    █▀     ███    █▀   
-//   ▄███▄▄▄      ███    ███  ███    ███  ███           ███         
-//  ▀▀███▀▀▀      ███    ███  ███    ███  ███         ▀███████████  
-//    ███         ███    ███  ███    ███  ███    █▄            ███  
-//    ███         ███    ███  ███    ███  ███    ███     ▄█    ███  
-//    ███         ████████▀    ▀█    █▀   ████████▀    ▄████████▀   
+//     ▄██████▄      ▄████████  ███▄▄▄▄▄    
+//    ███    ███    ███    ███  ███▀▀▀▀██▄  
+//    ███    █▀     ███    █▀   ███    ███  
+//   ▄███          ▄███▄▄▄      ███    ███  
+//  ▀▀███ ████▄   ▀▀███▀▀▀      ███    ███  
+//    ███    ███    ███    █▄   ███    ███  
+//    ███    ███    ███    ███  ███    ███  
+//    ████████▀     ██████████   ▀█    █▀   
 
 // get svg
 
@@ -1030,6 +1028,25 @@ lower case = relatively positioned
 C bezier point 1, bezier point 2, end point
 
 */
+
+function getnum($seed, $offset, $range) {
+	$a = $seed[$offset];
+	$b = $seed[$offset + 1];
+	$c = $seed[$offset + 2];
+
+}
+
+function _getsvg($up = true) {
+	$hash = str_split(_NWP['seed_hash'], 2);
+	foreach ($hash as $key => $value) {
+		$seed[] = hexdec($value);
+	}
+	$height = $seed[0];
+	$svg = '<svg viewbox="0 0 1000 ' . $height . '" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" style="width:100%;"><path d="';
+	if ($up) {
+		$svg .= 'M0,' . ($seed[0] / 2) ;
+	}	
+}
 
 function getsvg($colour, $up = true) {
 	$hash = str_split(_NWP['seed_hash'], 2);
@@ -1054,6 +1071,15 @@ function getsvg($colour, $up = true) {
 	$svg .= '" fill="' . $colour . '" stroke-linecap="round" stroke-linejoin="miter"></path></svg>';
 	echo "\t$svg\n";
 }
+
+//     ▄████████  ███    █▄   ███▄▄▄▄▄     ▄████████     ▄████████  
+//    ███    ███  ███    ███  ███▀▀▀▀██▄  ███    ███    ███    ███  
+//    ███    █▀   ███    ███  ███    ███  ███    █▀     ███    █▀   
+//   ▄███▄▄▄      ███    ███  ███    ███  ███           ███         
+//  ▀▀███▀▀▀      ███    ███  ███    ███  ███         ▀███████████  
+//    ███         ███    ███  ███    ███  ███    █▄            ███  
+//    ███         ███    ███  ███    ███  ███    ███     ▄█    ███  
+//    ███         ████████▀    ▀█    █▀   ████████▀    ▄████████▀   
 
 // echo values
 
@@ -1590,7 +1616,6 @@ function set_wp_options() {
 
 	define('_NWP', _themeSettings::get_settings());
 
-	// set up post types
 	foreach (_NOT_WP_POSTTYPES as $type) {
 		$uc_type = ucwords($type);
 
@@ -1625,7 +1650,6 @@ function set_wp_options() {
 		]);
 	}
 
-	// set up taxonomies
 	foreach (_NOT_WP_TAXONOMIES as $type => $child) {
 		$uc_type = ucwords($type);
 
@@ -1662,6 +1686,17 @@ function not_wp_login_logo() {
 	echo '<style>h1 a { background-image:url(' . get_template_directory_uri() . '/logo_dark.svg) !important; width: 300px !important; background-size: auto auto !important; }</style>';
 }
 
+// theme setup
+
+function do_setup() {
+	if (_NOT_WP_OPTIONS['thumbnails']) {
+		add_theme_support('post-thumbnails');
+		set_post_thumbnail_size(192, 108);
+	}
+
+	register_nav_menus(_NOT_WP_MENUS);
+}
+
 //   ▄█   ███▄▄▄▄▄     ▄█       ███      
 //  ███   ███▀▀▀▀██▄  ███   ▀█████████▄  
 //  ███▌  ███    ███  ███▌     ▀███▀▀██  
@@ -1674,16 +1709,6 @@ function not_wp_login_logo() {
 // theme updater
 
 $updater = new _themeUpdater();
-
-// register nav
-
-register_nav_menus(_NOT_WP_MENUS);
-
-// thumbnails
-
-if (_NOT_WP_OPTIONS['thumbnails']) {
-	add_theme_support('post-thumbnails');
-}
 
 // actions
 

@@ -16,7 +16,7 @@
 <?php if (have_posts()): while (have_posts()) : the_post(); ?>
 				<article>
 <?php if (getvalue('show_page_titles') != 'none'): ?>
-					<<?php echo getvalue('show_page_titles'); ?> class="page-title"><?php the_title(); ?></<?php echo getvalue('show_page_titles'); ?>>
+					<<?php echo getvalue('show_page_titles'); ?> class="post-title"><?php the_title(); ?></<?php echo getvalue('show_page_titles'); ?>>
 <?php endif; ?>
 <?php if (getvalue('show_post_date') == 'yes'): ?>
 					<p class="post-datetime"><span class="post-date"><?php the_time(get_option('date_format')); ?></span> - <span class="post-time"><?php the_time(); ?></span></p>
