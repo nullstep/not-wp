@@ -130,6 +130,14 @@
 	transform: translateX(26px);
 }
 
+#not_wp-form .font-preview p {
+	font-size: 20px;
+	margin: 10px 0 15px 10px;
+	width: 75%;
+	cursor: pointer;
+	user-select: none;
+}
+
 @media screen and (max-width: 782px) {
 	#not_wp-form .col-4,
 	#not_wp-form .col-3,

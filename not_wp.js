@@ -43,6 +43,22 @@ jQuery(function($) {
 		'theme_js',
 		id + '-code_code'
 	];
+	const texts = [
+		'jackdaws love my big sphinx of quartz',
+		'pack my box with five-dozen liquor jugs',
+		'quirky novel with pages of zany jumbled lexicon',
+		'a quick brown fox jumps over the lazy dog'
+	];
+	const preview = function(n, v) {
+		n += '_preview';
+		var s = '<style>@import url(\'https://fonts.googleapis.com/css2?family=' + v.replace(' ', '+') + '&display=swap\');#' + n + ' p{font-family:' + v + '}</style>';
+		if (v != '') {
+			$('#' + n).html(s + '<p>' + texts[Math.floor(Math.random() * 4)] + '</p>');
+		}
+		else {
+			$('#' + n).empty();
+		}
+	};
 	// let's go
 	var cm = [];
 	$('#' + id + '-form .tab-content .' + id + '-tab').eq(0).show();
@@ -75,14 +91,13 @@ jQuery(function($) {
 				if (i.is(':checkbox')) {
 					if (r[item] == 'yes') {
 						i.prop('checked', true);
-						console.log('checkbox yes');
-					}
-					else {
-						console.log('checkbox no');
 					}
 				}
 				if (r[item][0] == '#') {
 					i.parent().find('[data-id="' + item + '"]').val(r[item]);
+				}
+				if (item.indexOf('font') != -1) {
+					preview(item, r[item]);
 				}
 			}
 			cm.forEach(function(item, index, arr) {
@@ -110,9 +125,25 @@ jQuery(function($) {
 			});
 		}
 	});
+	$('#' + id + '-form .colour').on('change', function(e) {
+		var i = $(this).attr('id');
+		$(this).parent().find(`[data-id='${i}']`).val($(this).val());
+	});
+	$('#' + id + '-form .font').on('change', function(e) {
+		preview($(this).attr('id'), $(this).val());
+	});
+	$('.font-preview').on('click', function(e) {
+		var e = $(this).find('p'), t = e.text();
+		if (t[0] == t[0].toUpperCase()) {
+			e.text(t.toLowerCase());
+		}
+		else {
+			e.text(t.toUpperCase());			
+		}
+	});
 	var enabled = true;
 	$('#' + id + '-form .text').keydown(function(e) {
-		if (e.keyCode==27) {
+		if (e.keyCode == 27) {
 			enabled = !enabled;
 			return false;
 		}
@@ -123,7 +154,7 @@ jQuery(function($) {
 				while (sel > 0 && text[sel-1] != '\n')
 				sel--;
 				var lineStart = sel;
-				while (text[sel] == ' ' || text[sel]=='\t')
+				while (text[sel] == ' ' || text[sel] == '\t')
 				sel++;
 				if (sel > lineStart) {
 					document.execCommand('insertText', false, "\n" + text.substr(lineStart, sel-lineStart));

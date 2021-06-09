@@ -625,7 +625,7 @@ class _themeMenu {
 								echo '<label for="' . $fid . '">';
 									echo $field['label'] . ':';
 								echo '</label>';
-								echo '<input id="' . $fid . '" type="text" name="' . $fid . '">';
+								echo '<input id="' . $fid . '" type="text" class="colour" name="' . $fid . '">';
 								echo '<input data-id="' . $fid . '" type="color" class="choose-colour-button" value="#000000">';
 								break;
 							}
@@ -648,9 +648,10 @@ class _themeMenu {
 								echo '<label for="' . $fid . '">';
 									echo $field['label'] . ':';
 								echo '</label>';
-								echo '<select id="' . $fid . '" name="' . $fid . '">';
+								echo '<select class="font" id="' . $fid . '" name="' . $fid . '">';
 									echo $opts;
 								echo '</select>';
+								echo '<div class="font-preview" id="' . $fid . '_preview"></div>';
 								break;
 							}
 						}
@@ -1094,12 +1095,12 @@ function getcss() {
 		'--tertiary-colour:' . _NWP['tertiary_colour'] . ';' .
 		'--quaternary-colour:' . _NWP['quaternary_colour'] . ';' .
 	'}';
-	$fix = (_NWP['sticky_nav']) ? ".fix{position:fixed;top:0;width:100%;z-index:1}.fix + .content{padding-top:122px!important}" : '';
+	$fix = (_NWP['sticky_nav']) ? ".fix{position:fixed;top:0;width:100%;z-index:1}.fix + .content{padding-top:calc(var(--nav-height) + 32px)!important}" : '';
 	echo $css . _NWP['theme_css_minified'] . $fix . "\n";
 }
 
 function getjs() {
-	$js = (_NWP['sticky_nav']) ? "window.onscroll=function(){s()};var n=document.getElementById('nav-area');var o=n.offsetTop;function s(){if(window.pageYOffset>=o){n.classList.add('fix')}else{n.classList.remove('fix')}}" : '';
+	$js = (_NWP['sticky_nav']) ? "window.onscroll=function(){s()};var n=document.getElementById('nav-area');document.documentElement.style.setProperty('--nav-height',n.clientHeight+'px');var o=n.offsetTop;function s(){if(window.pageYOffset>=o){n.classList.add('fix')}else{n.classList.remove('fix')}}" : '';
 	echo $js . _NWP['theme_js_minified'] . "\n";
 }
 
