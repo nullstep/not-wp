@@ -1,6 +1,6 @@
 		</div>
 	</div>
-<?php getsvg('#333'); ?>
+	<?php getsvg('#333'); ?>
 	<div id="footer-area" class="content">
 		<div class="<?php getcontainer(); ?>">
 			<footer class="row">
