@@ -174,11 +174,10 @@ if (isset($_GET['file'])) {
 		$ip = $_SERVER['REMOTE_ADDR'];
 		if (!in_array($ip, _IGNORE_NOT_WP)) {
 			$post = get_page_by_title($name, 'OBJECT', 'attachment');
-			if (!$post) {
-				header('Location: /404');
+			if ($post) {
+				$count = get_post_meta($post->ID, 'file_downloads', true);
+				update_post_meta($post->ID, 'file_downloads', ($count != '') ? (int)$count + 1 : 1);
 			}
-			$count = get_post_meta($post->ID, 'file_downloads', true);
-			update_post_meta($post->ID, 'file_downloads', ($count != '') ? (int)$count + 1 : 1);
 		}
 		if (!isset($mimes[$extension])) {
 			$mime = 'application/octet-stream';
