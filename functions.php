@@ -1240,24 +1240,12 @@ function add_post_metadata() {
 		'default',
 		null
 	);
-
-	$screen = 'code';
-	add_meta_box(
-		'code_meta_box',
-		'Code',
-		'add_code_metadata_callback',
-		$screen
-	);
 }
 
 function add_post_metadata_callback($post) {
 	wp_nonce_field('column_class_save_data', 'column_class_nonce');
 	$value = get_post_meta($post->ID, 'column_class', true);
 	echo '<input class="components-text-control__input" style="margin-top:8px" type="text" name="column_class" value="' . esc_attr($value) . '" placeholder="Enter Column Class...">';
-}
-
-function add_code_metadata_callback($post) {
-	//
 }
  
 function save_post_metadata($post_id) {
