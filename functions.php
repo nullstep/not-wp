@@ -1008,6 +1008,68 @@ class _themeWidget extends WP_Widget {
 //    ███    ███    ███    ███  ███    ███  
 //    ████████▀     ██████████   ▀█    █▀   
 
+// calcs
+
+function opposed($point_a, $point_b) {
+	$len_x = $point_b[0] - $point_a[0];
+	$len_y = $point_b[1] - $point_a[1];
+	return [
+		'length' => sqrt(pow($len_x, 2) + pow($len_y, 2)),
+		'angle' => atan2($len_y, $len_x)
+	];
+}
+
+function point($current, $previous, $next, $reverse) {
+	$p = $previous ?? $current;
+	$n = $next ?? $current;
+	$smooth = 0.2;
+	$o = opposed($p, $n);
+	$angle = $o['angle'] + ($reverse ? pi() : 0);
+	$len = $o['length'] * $smooth;
+	return [
+		'x' => $current[0] + cos($angle) * $len,
+		'y' => $current[1] + sin($angle) * $len
+	];
+}
+
+function curve($point, $index, $array) {
+	$start = point($array[$index - 1], (($index - 2) < 0) ? null : $array[$index - 2], $point, false);
+	$end = point($point, $array[$index - 1], (($index + 1) > count($array) - 1) ? null : $array[$index + 1], true);
+	return 'C ' . $start['x'] . ',' . $start['y'] . ' ' . $end['x'] . ',' . $end['y'] . ' ' . $point[0] . ',' . $point[1];
+}
+
+function line($point) {
+	return 'L ' . $point[0] . ',' . $point[1];
+}
+
+function path($points, $cmd) {
+	$i = 0;
+	$d = '';
+	foreach ($points as $point) {
+		if ($i == 0) {
+			$d .= 'M ' . $point[0] . ',' . $point[1];
+		}
+		else {
+			switch ($cmd) {
+				case 'line': {
+					$d .= line($point);
+					break;
+				}
+				case 'curve': {
+					$d .= curve($point, $i, $points);
+					break;
+				}
+			}
+		}
+		$i++;
+	}
+	return $d;
+}
+
+function norm($val, $max) {
+	return $val / ($max - $val) * 100;
+}
+
 // get svg
 
 /*
@@ -1030,47 +1092,24 @@ C bezier point 1, bezier point 2, end point
 
 */
 
-function getnum($seed, $offset, $range) {
-	$a = $seed[$offset];
-	$b = $seed[$offset + 1];
-	$c = $seed[$offset + 2];
-
-}
-
-function _getsvg($up = true) {
-	$hash = str_split(_NWP['seed_hash'], 2);
-	foreach ($hash as $key => $value) {
-		$seed[] = hexdec($value);
-	}
-	$height = $seed[0];
-	$svg = '<svg viewbox="0 0 1000 ' . $height . '" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" style="width:100%;"><path d="';
-	if ($up) {
-		$svg .= 'M0,' . ($seed[0] / 2) ;
-	}	
-}
-
 function getsvg($colour, $up = true) {
 	$hash = str_split(_NWP['seed_hash'], 2);
 	foreach ($hash as $key => $value) {
 		$seed[] = hexdec($value);
 	}
-	$height = $seed[0];
-	$svg = '<svg viewbox="0 0 960 512" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" style="width:100%;"><path d="';
-	$svg .= 'M0,' . $seed[0] * 2;
-	$svg .= 'C45 420 91 444 137 438';
-	$svg .= 'C182 432 228 396 274 396';
-	$svg .= 'C319 397 365 434 411 451';
-	$svg .= 'C457 468 503 464 548 444';
-	$svg .= 'C594 425 640 391 686 381';
-	$svg .= 'C731 372 777 387 823 391';
-	$svg .= 'C868 394 914 385 937 381';
-	$svg .= 'L960 377';
-	$svg .= 'L960 512';
-	$svg .= 'L937 512';
-	$svg .= 'L0 512';
-	$svg .= 'Z';
-	$svg .= '" fill="' . $colour . '" stroke-linecap="round" stroke-linejoin="miter"></path></svg>';
-	echo "\t$svg\n";
+	$height = 50; //$seed[0];
+	$points = [[0, 50], [10, 40], [40, 30], [60, 15], [90, 45], [120, 20], [150, 45], [200, 50]];
+	if ($up) {
+		$i = 0;
+		foreach ($points as $point) {
+			$points[$i][1] = $height - $point[1];
+			$i++;
+		}
+	}
+	$svg = '<svg viewbox="0 0 200 ' . $height . '" style="width:100%">';
+	$svg .= '<path d="' . path($points, 'line') . ' V' . (($up) ? $height : '0') . ' H0 Z" fill="' . $colour . '" stroke="none">';
+	$svg .= '</svg>';
+	echo "$svg\n";
 }
 
 //     ▄████████  ███    █▄   ███▄▄▄▄▄     ▄████████     ▄████████  
