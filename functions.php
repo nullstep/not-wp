@@ -19,14 +19,6 @@ define('_NOT_WP_OPTIONS', [
 	'thumbnails' => true
 ]);
 
-define('_NOT_WP_POSTTYPES', [
-	'code'
-]);
-
-define('_NOT_WP_TAXONOMIES', [
-	'group' => 'code'
-]);
-
 define('_NOT_WP_MENUS', [
 	'primary' => 'Primary Menu'
 ]);
@@ -504,26 +496,6 @@ class _themeMenu {
 			'dashicons-palmtree',
 			2
 		);
-
-		foreach (_NOT_WP_TAXONOMIES as $type => $child) {
-			add_submenu_page(
-				$this->slug,
-				$type . 's',
-				$type . 's',
-				'manage_options',
-				'/edit-tags.php?taxonomy=' . $type . '&post_type=' . $child
-			);
-		}
-
-		foreach (_NOT_WP_POSTTYPES as $type) {
-			add_submenu_page(
-				$this->slug,
-				$type . 's',
-				$type . 's',
-				'manage_options',
-				'/edit.php?post_type=' . $type
-			);
-		}
 	}
 
 	public function register_assets() {
@@ -1343,25 +1315,6 @@ function add_mime_types($mimes) {
 	return $mimes;
 }
 
-// set current admin menu
-
-function set_current_menu($parent_file) {
-	global $submenu_file, $current_screen, $pagenow;
-	$taxonomy = 'group';
-
-	if ($current_screen->id == 'edit-' . $taxonomy) {
-		if ($pagenow == 'post.php') {
-			$submenu_file = 'edit.php?post_type=' . $current_screen->post_type;
-		}
-		if ($pagenow == 'edit-tags.php') {
-			$submenu_file = 'edit-tags.php?taxonomy=' . $taxonomy . '&post_type=' . $current_screen->post_type;
-		}
-		$parent_file = _THEME . '-theme-menu';
-	}
-
-	return $parent_file;
-}
-
 // htaccess stuff
 
 function output_htaccess($rules) {
@@ -1655,69 +1608,6 @@ function set_wp_options() {
 	update_option('show_avatars', 0);
 
 	define('_NWP', _themeSettings::get_settings());
-
-	foreach (_NOT_WP_POSTTYPES as $type) {
-		$uc_type = ucwords($type);
-
-		$labels = [
-			'name' => $uc_type . 's',
-			'singular_name' => $uc_type,
-			'menu_name' => $uc_type . 's',
-			'name_admin_bar' => $uc_type . 's',
-			'add_new' => 'Add New',
-			'add_new_item' => 'Add New ' . $uc_type,
-			'new_item' => 'New ' . $uc_type,
-			'edit_item' => 'Edit ' . $uc_type,
-			'view_item' => 'View ' . $uc_type,
-			'all_items' => $uc_type . 's',
-			'search_items' => 'Search ' . $uc_type . 's',
-			'not_found' => 'No ' . $uc_type . 's Found'
-		];
-
-		register_post_type($type, [
-			'supports' => [
-				'title',
-				'editor'
-			],
-			'hierarchical' => true,
-			'labels' => $labels,
-			'show_ui' => true,
-			'show_in_menu' => false,
-			'show_in_rest' => true,
-			'query_var' => true,
-			'has_archive' => false,
-			'rewrite' => ['slug' => $type]
-		]);
-	}
-
-	foreach (_NOT_WP_TAXONOMIES as $type => $child) {
-		$uc_type = ucwords($type);
-
-		$labels = [
-			'name' => $uc_type . 's',
-			'singular_name' => $uc_type,
-			'search_items' => 'Search ' . $uc_type . 's',
-			'all_items' => 'All ' . $uc_type . 's',
-			'parent_item' => 'Parent ' . $uc_type,
-			'parent_item_colon' => 'Parent ' . $uc_type . ':',
-			'edit_item' => 'Edit ' . $uc_type, 
-			'update_item' => 'Update ' . $uc_type,
-			'add_new_item' => 'Add New ' . $uc_type,
-			'new_item_name' => 'New ' . $uc_type . ' Name',
-			'menu_name' => $uc_type . 's'
-		];
-
-		register_taxonomy($type, [$child], [
-			'hierarchical' => true,
-			'labels' => $labels,
-			'show_ui' => true,
-			'show_in_menu' => false,
-			'show_in_rest' => true,
-			'show_admin_column' => true,
-			'query_var' => true,
-			'rewrite' => ['slug' => $type]
-		]);
-	}
 }
 
 // login screen
@@ -1825,7 +1715,6 @@ add_filter('nav_menu_css_class', 'nav_attributes_filter', 100, 1);
 add_filter('nav_menu_item_id', 'nav_attributes_filter', 100, 1);
 add_filter('page_css_class', 'nav_attributes_filter', 100, 1);
 add_filter('excerpt_length', 'set_excerpt_length', 999);
-add_filter('parent_file', 'set_current_menu');
 
 remove_filter('oembed_dataparse', 'wp_filter_oembed_result', 10);
 remove_filter('the_excerpt', 'wpautop');
