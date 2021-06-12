@@ -8,9 +8,12 @@
 <?php
 	$nav_logo = getvalue('nav_logo');
 	if ($nav_logo != 'none') {
+		$nav_img = getvalue('logo_image_' . $nav_logo);
+		if ($nav_img) {
 ?>
-				<a class="navbar-brand" href="<?php echo home_url(); ?>"><img id="nav-logo" src="/uploads/<?php echo getvalue('logo_image_' . $nav_logo); ?>"></a>
+				<a class="navbar-brand" href="<?php echo home_url(); ?>"><img id="nav-logo" src="/uploads/<?php echo $nav_img; ?>"></a>
 <?php
+		}
 	}
 ?>
 				<?php wp_nav_menu([
